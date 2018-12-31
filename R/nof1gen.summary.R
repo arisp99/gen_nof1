@@ -10,7 +10,6 @@
 #' nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = 'Usual Routine', response = 'ordinal')
 #' timestamp <- seq(as.Date('2015-01-01'),as.Date('2016-01-31'), length.out = length(Y))
 #' time_series_plot(nof1, timestamp = timestamp, timestamp.format = '%m-%d-%Y', Outcome.name = 'Stress')
-#' @export
 
 # this should be only for ordinal data. maybe also binomial?
 
@@ -49,7 +48,6 @@ time_series_plot <- function(nof1, time = NULL, timestamp = NULL, timestamp.form
 #' Treat <- laughter$Treat
 #' nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = 'Usual Routine', response = 'ordinal')
 #' frequency_plot(nof1)
-#' @export
 
 # changed the bin size (added bins=10) and added in na.rm = TURE. Seperated
 # binomial and ordinal data.
@@ -82,7 +80,6 @@ frequency_plot <- function(nof1, xlab = NULL, title = NULL) {
 #' Treat <- laughter$Treat
 #' nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = 'Usual Routine', response = 'ordinal')
 #' stacked_percent_barplot(nof1)
-#' @export
 
 # seperated binomial and ordinal data
 stacked_percent_barplot <- function(nof1, title = NULL) {
@@ -106,15 +103,27 @@ stacked_percent_barplot <- function(nof1, title = NULL) {
   }
 }
 
-#' Summary data table for nof1
+#' Summary data table
+#'
+#' Provides a summary data table for the particular outcome in a particular dataset.
 #'
 #' @param nof1 nof1 object created using nof1.data
-#' @examples
-#' Y <- laughter$Y
-#' Treat <- laughter$Treat
-#' nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = 'Usual Routine', response = 'ordinal')
-#' raw_table(nof1)
-#' @export
+#' @return Gives a comprhensive table with several statistical values.
+#' Each column indicates the value given. For a normal or poisson
+#' response type the following are given:
+#' \item{Treat}{The treatment recieved}
+#' \item{mean}{The average value of the outcome}
+#' \item{sd}{The standard deviation for the outcome}
+#' \item{2.5\%}{2.5\% of the data are equal to or less than this value}
+#' \item{50\%}{50\% of the data are equal to or less than this value}
+#' \item{97.5\%}{97.5\% of the data are equal to or less than this value}
+#' For a binomial or ordinal response type, the following are given:
+#' \item{A}{Number of data points taken while in Treatment A phase
+#' that have a value of 0 and 1, in the first and second row, respectivly}
+#' \item{B}{Number of data points taken while in Treatment B phase
+#' that have a value of 0 and 1, in the first and second row, respectivly}
+#' \item{baseline}{Number of data points taken while in baseline phase
+#' that have a value of 0 and 1, in the first and second row, respectivly}
 
 # added ability to work with missing data. added na.rm = TRUE
 raw_table <- function(nof1) {
@@ -201,7 +210,22 @@ probability_barplot <- function(result.list, result.name = NULL) {
     y = "Percentages", fill = "Treatment") + coord_flip() + theme_bw()
 }
 
-# Function to create graphs for raw data
+#' Raw Graphs and Tables
+#'
+#' \code{make_raw_graphs} allows the user to create a specific table or graph
+#' for an outcome. Possible graphs include: time_series_plot, frequency_plot,
+#' stacked_percent_barplot, and raw_table.
+#'
+#' @param graph (str) the specific table or graph to construct. Options include:
+#' time_series_plot, frequency_plot, stacked_percent_barplot, and raw_table.
+#' @param dataset the dataset used to create the table or graph
+#' @param index (int) the outcome index in the dataset
+#' @param ... specific paramaters depending on table or graph to constuct
+#' @examples
+#' make_raw_graphs("raw_table", diet_form, 1, title = "Daily Stool Consistency")
+#' make_raw_graphs("stacked_percent_barplot", diet_form, 1, title = "Daily Stool Consistency")
+#' @export
+
 make_raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL,
   xlab = NULL, title = NULL) {
   data = dataset$data
@@ -220,6 +244,7 @@ make_raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL
     return(paste("input read error: ", error))
   })
 
+  # Define some variables to be used in constructing nof1 object
   nof_responses <- length(data)
   response_type = metadata[length(metadata) - nof_responses + index]
 
@@ -236,5 +261,5 @@ make_raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL
     stacked_percent_barplot(nof1_out, title)
   } else if (graph == "raw_table") {
     raw_table(nof1_out)
-  }
+  } else {"Not a viable graph or table"}
 }
