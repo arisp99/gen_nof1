@@ -29,7 +29,8 @@
 #' summary(result$samples)
 #' @export
 
-nof1.run <- function(nof1, inits = NULL, n.chains = 3, max.run = 1e+05, setsize = 10000, n.run = 50000, conv.limit = 1.05, extra.pars.save = NULL) {
+nof1.run <- function(nof1, inits = NULL, n.chains = 3, max.run = 1e+05, setsize = 10000, 
+    n.run = 50000, conv.limit = 1.05, extra.pars.save = NULL) {
     
     if (!inherits(nof1, "nof1.data")) {
         stop("Given object is not nof1.data. Run nof1.data function first")
@@ -47,7 +48,8 @@ nof1.run <- function(nof1, inits = NULL, n.chains = 3, max.run = 1e+05, setsize 
             pars.save <- c(pars.save, "sd")
         }
         
-        # if(!is.null(knots)){ for(i in 1:ncol(BS)){ pars.save <- c(pars.save, paste0('gamma', i)) } }
+        # if(!is.null(knots)){ for(i in 1:ncol(BS)){ pars.save <- c(pars.save,
+        # paste0('gamma', i)) } }
         
         for (i in Treat.name) {
             pars.save <- c(pars.save, paste0("beta_", i))
@@ -63,7 +65,8 @@ nof1.run <- function(nof1, inits = NULL, n.chains = 3, max.run = 1e+05, setsize 
         if (is.null(inits)) {
             inits <- nof1.inits(nof1, n.chains)
         }
-        samples <- jags.fit(nof1, data, pars.save, inits, n.chains, max.run, setsize, n.run, conv.limit)
+        samples <- jags.fit(nof1, data, pars.save, inits, n.chains, max.run, setsize, 
+            n.run, conv.limit)
         
         result <- list(nof1 = nof1, inits = inits, pars.save = pars.save, data.rjags = data)
         result <- c(result, samples)
@@ -73,9 +76,11 @@ nof1.run <- function(nof1, inits = NULL, n.chains = 3, max.run = 1e+05, setsize 
     })
 }
 
-jags.fit <- function(nof1, data, pars.save, inits, n.chains, max.run, setsize, n.run, conv.limit) {
+jags.fit <- function(nof1, data, pars.save, inits, n.chains, max.run, setsize, n.run, 
+    conv.limit) {
     
-    mod = rjags::jags.model(textConnection(nof1$code), data = data, inits = inits, n.chains = n.chains, n.adapt = setsize)
+    mod = rjags::jags.model(textConnection(nof1$code), data = data, inits = inits, 
+        n.chains = n.chains, n.adapt = setsize)
     
     adapted <- FALSE
     count <- 0
@@ -144,7 +149,8 @@ new.mcmc <- function(x) {
     newobjects <- vector("list", length = n.chains)
     
     for (i in 1:n.chains) {
-        newobjects[[i]] <- matrix(NA, nrow = 0, ncol = n.var, dimnames = list(NULL, dimnames(x[[1]])[[2]]))
+        newobjects[[i]] <- matrix(NA, nrow = 0, ncol = n.var, dimnames = list(NULL, 
+            dimnames(x[[1]])[[2]]))
         newobjects[[i]] <- x[[i]]
         newobjects[[i]] <- mcmc(newobjects[[i]])
     }
@@ -158,7 +164,8 @@ add.mcmc <- function(x, y) {
     newobjects <- vector("list", length = n.chains)
     
     for (i in 1:n.chains) {
-        newobjects[[i]] <- matrix(NA, nrow = 0, ncol = n.var, dimnames = list(NULL, dimnames(x[[1]])[[2]]))
+        newobjects[[i]] <- matrix(NA, nrow = 0, ncol = n.var, dimnames = list(NULL, 
+            dimnames(x[[1]])[[2]]))
         newobjects[[i]] <- rbind(x[[i]], y[[i]])
         newobjects[[i]] <- mcmc(newobjects[[i]])
     }

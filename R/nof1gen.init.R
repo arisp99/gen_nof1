@@ -12,7 +12,8 @@ nof1.inits <- function(nof1, n.chains) {
         if (any(is.nan(unlist(value)))) 
             value <- NULL
         
-        # if initial value generated is too big (i.e. model didn't work because of sparse data), just set inital value to be NULL
+        # if initial value generated is too big (i.e. model didn't work because of sparse
+        # data), just set inital value to be NULL
         if (!is.null(value)) {
             if (any(abs(unlist(value)) > 100)) 
                 value <- NULL
@@ -52,11 +53,13 @@ nof1.inits.normal <- function(nof1, n.chains) {
             initial.values[[i]][["alpha"]] <- co[1, 1] + rnorm(1) * co[1, 2]
             
             for (j in 1:length(Treat.name)) {
-                initial.values[[i]][[paste0("beta_", Treat.name[j])]] <- co[1 + j, 1] + rnorm(1) * co[1 + j, 2]
+                initial.values[[i]][[paste0("beta_", Treat.name[j])]] <- co[1 + j, 
+                  1] + rnorm(1) * co[1 + j, 2]
             }
             
-            # if(!is.null(knots)){ for(j in 1:ncol(BS)){ initial.values[[i]][[paste0('gamma', j)]] <- co[1+length(Treat.name)+j, 1] + rnorm(1) *
-            # co[1+length(Treat.name)+j, 2] } }
+            # if(!is.null(knots)){ for(j in 1:ncol(BS)){ initial.values[[i]][[paste0('gamma',
+            # j)]] <- co[1+length(Treat.name)+j, 1] + rnorm(1) * co[1+length(Treat.name)+j,
+            # 2] } }
         }
         
         if (!is.nan(summary(model)$fstat[1])) {
@@ -99,12 +102,14 @@ nof1.inits.binom.poisson <- function(nof1, n.chains) {
             
             model <- glm(Y ~ Treat.matrix, family = binomial(link = "logit"))
             co <- coef(summary(model))
-            # else{ model <- glm(Y ~ Treat.matrix + BS, family = binomial(link = 'logit')) co <- coef(summary(model)) }
+            # else{ model <- glm(Y ~ Treat.matrix + BS, family = binomial(link = 'logit')) co
+            # <- coef(summary(model)) }
         } else if (response == "poisson") {
             
             model <- glm(Y ~ Treat.matrix, family = "poisson")
             co <- coef(summary(model))
-            # else{ model <- glm(Y ~ Treat.matrix + BS, family = 'poisson') co <- coef(summary(model)) }
+            # else{ model <- glm(Y ~ Treat.matrix + BS, family = 'poisson') co <-
+            # coef(summary(model)) }
         }
         
         initial.values = list()
@@ -116,11 +121,13 @@ nof1.inits.binom.poisson <- function(nof1, n.chains) {
             initial.values[[i]][["alpha"]] <- co[1, 1] + rnorm(1) * co[1, 2]
             
             for (j in 1:length(Treat.name)) {
-                initial.values[[i]][[paste0("beta_", Treat.name[j])]] <- co[1 + j, 1] + rnorm(1) * co[1 + j, 2]
+                initial.values[[i]][[paste0("beta_", Treat.name[j])]] <- co[1 + j, 
+                  1] + rnorm(1) * co[1 + j, 2]
             }
             
-            # if(!is.null(knots)){ for(j in 1:ncol(BS)){ initial.values[[i]][[paste0('gamma', j)]] <- co[1+length(Treat.name)+j, 1] + rnorm(1) *
-            # co[1+length(Treat.name)+j, 2] } }
+            # if(!is.null(knots)){ for(j in 1:ncol(BS)){ initial.values[[i]][[paste0('gamma',
+            # j)]] <- co[1+length(Treat.name)+j, 1] + rnorm(1) * co[1+length(Treat.name)+j,
+            # 2] } }
         }
         return(initial.values)
     })
@@ -171,20 +178,24 @@ nof1.inits.ordinal <- function(nof1, n.chains) {
             Treat.matrix <- cbind(Treat.matrix, nof1[[paste0("Treat_", i)]])
         }
         
-        # if(is.na(knots)){ model <- polr(as.ordered(Y) ~ Treat.matrix, Hess = TRUE) co = coef(summary(model)) }
+        # if(is.na(knots)){ model <- polr(as.ordered(Y) ~ Treat.matrix, Hess = TRUE) co =
+        # coef(summary(model)) }
         model <- MASS::polr(as.ordered(Y) ~ Treat.matrix, Hess = TRUE)
         co = coef(summary(model))
         
         if (!is.null(model)) {
-            co_Treat <- co[grep("Treat.matrix", rownames(coef(summary(model)))), , drop = FALSE]
+            co_Treat <- co[grep("Treat.matrix", rownames(coef(summary(model)))), 
+                , drop = FALSE]
             # co_BS <- co[grep('BS', rownames(coef(summary(model)))), ]
             
             for (i in 1:n.chains) {
                 for (j in 1:length(Treat.name)) {
-                  initial.values[[i]][[paste0("beta_", Treat.name[j])]] <- co_Treat[j, 1] + rnorm(1) * co_Treat[j, 2]
+                  initial.values[[i]][[paste0("beta_", Treat.name[j])]] <- co_Treat[j, 
+                    1] + rnorm(1) * co_Treat[j, 2]
                 }
                 
-                # if(!is.na(knots)){ for(j in 1:ncol(BS)){ initial.values[[i]][[paste0('gamma', j)]] <- co_BS[j, 1] + rnorm(1) * co_BS[j, 2] } }
+                # if(!is.na(knots)){ for(j in 1:ncol(BS)){ initial.values[[i]][[paste0('gamma',
+                # j)]] <- co_BS[j, 1] + rnorm(1) * co_BS[j, 2] } }
             }
         }
         

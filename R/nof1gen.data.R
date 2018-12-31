@@ -34,7 +34,8 @@
 #' cat(nof1$code)
 #' @export
 
-nof1.data <- function(Y, Treat, baseline = "baseline", ncat = NULL, response = NULL, Time = NULL, knots = NULL, alpha.prior = NULL, beta.prior = NULL, gamma.prior = NULL, 
+nof1.data <- function(Y, Treat, baseline = "baseline", ncat = NULL, response = NULL, 
+    Time = NULL, knots = NULL, alpha.prior = NULL, beta.prior = NULL, gamma.prior = NULL, 
     dc.prior = NULL, c1.prior = NULL, rho.prior = NULL, hy.prior = NULL) {
     
     if (response == "ordinal") {
@@ -54,7 +55,8 @@ nof1.data <- function(Y, Treat, baseline = "baseline", ncat = NULL, response = N
     Treat.name <- unique(Treat)
     Treat.name <- Treat.name[Treat.name != baseline]
     
-    nof1 = list(Y = Y, Treat = Treat, baseline = baseline, ncat = ncat, nobs = nobs, Treat.name = Treat.name, response = response)
+    nof1 = list(Y = Y, Treat = Treat, baseline = baseline, ncat = ncat, nobs = nobs, 
+        Treat.name = Treat.name, response = response)
     
     # for correlated model, not used
     if (!is.null(Time)) {
@@ -76,7 +78,8 @@ nof1.data <- function(Y, Treat, baseline = "baseline", ncat = NULL, response = N
         nof1[[paste("Treat_", i, sep = "")]] <- nam
     }
     
-    prior.param <- list(response = response, dc.prior = dc.prior, c1.prior = c1.prior, alpha.prior = alpha.prior, beta.prior = beta.prior, gamma.prior = gamma.prior, 
+    prior.param <- list(response = response, dc.prior = dc.prior, c1.prior = c1.prior, 
+        alpha.prior = alpha.prior, beta.prior = beta.prior, gamma.prior = gamma.prior, 
         hy.prior = hy.prior, rho.prior = rho.prior)
     prior.data <- nof1.prior.default(prior.param)
     

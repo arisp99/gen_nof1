@@ -34,7 +34,8 @@ nof1.prior.default <- function(prior.param) {
             
         }
         
-        prior.param.default <- list(alpha.prior = alpha.prior, beta.prior = beta.prior, gamma.prior = gamma.prior, rho.prior = rho.prior, hy.prior = hy.prior)
+        prior.param.default <- list(alpha.prior = alpha.prior, beta.prior = beta.prior, 
+            gamma.prior = gamma.prior, rho.prior = rho.prior, hy.prior = hy.prior)
         
         if (response == "ordinal") {
             if (is.null(dc.prior)) {

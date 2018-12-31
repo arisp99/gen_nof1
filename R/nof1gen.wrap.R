@@ -1,15 +1,22 @@
-# Input File Format: The file has two parts, the data section and the metadata section. The data section will contain all the observations taken during the
-# trial. For each observation, we will have a list of the treatment the patient was on at the time followed by a list of all the data points collected. These
-# two lists should be the same length. The metadata section will then contain the user_id, the trigger, the design of the trial, whether or not a washout
-# period will be used (if not in metadata, default is TRUE), the alpha value for the confidence interval, the start and end date (YYYY-MM-DD), followed by
-# the response type of each of the observations. Either binomial, poisson, or normal. The response types must be in the same order as the observations in the
-# data section and must be the last pieces of information in the metadata section.
+# Input File Format: The file has two parts, the data section and the metadata
+# section. The data section will contain all the observations taken during the
+# trial. For each observation, we will have a list of the treatment the patient
+# was on at the time followed by a list of all the data points collected. These
+# two lists should be the same length. The metadata section will then contain the
+# user_id, the trigger, the design of the trial, whether or not a washout period
+# will be used (if not in metadata, default is TRUE), the alpha value for the
+# confidence interval, the start and end date (YYYY-MM-DD), followed by the
+# response type of each of the observations. Either binomial, poisson, or normal.
+# The response types must be in the same order as the observations in the data
+# section and must be the last pieces of information in the metadata section.
 
-# To read in a data set, as a .json file use the fromJSON command. ex: json.file <- fromJSON('NAME-OF-FILE.json')
+# To read in a data set, as a .json file use the fromJSON command. ex: json.file
+# <- fromJSON('NAME-OF-FILE.json')
 
 # Some packages needed for file to run library(nof1) library(jsonlite)
 
-# This function essentially reads in the data and changes the data that was entered binomially to contain only 0 and 1.
+# This function essentially reads in the data and changes the data that was
+# entered binomially to contain only 0 and 1.
 formated_read_input <- function(data, metadata) {
     
     outcome_names <- names(data)
@@ -30,7 +37,8 @@ formated_read_input <- function(data, metadata) {
     output
 }
 
-# Washout function. in some cases when we switch from A to B, for example, the first couple data points in B could be corrupted because the effects of A are
+# Washout function. in some cases when we switch from A to B, for example, the
+# first couple data points in B could be corrupted because the effects of A are
 # still there. Thus we ingore the first couple data points (set them to NA).
 washout <- function(read_data, metadata) {
     
@@ -49,14 +57,17 @@ washout <- function(read_data, metadata) {
         change_point <- cumsum(rle(vec_treat)$lengths)
         change_point <- change_point[-length(change_point)]
         
-        # we only change weekly results and daily results, more than weekly does not make much sense as enough time would have passed so that the previous #treatment
-        # would not make a difference anymore NB: at some point, may want to account for different frequencies, ie. multiple time a day
+        # we only change weekly results and daily results, more than weekly does not make
+        # much sense as enough time would have passed so that the previous #treatment
+        # would not make a difference anymore NB: at some point, may want to account for
+        # different frequencies, ie. multiple time a day
         delete_obs_daily <- NULL
         delete_obs_weekly <- NULL
         
         if (length(vec_treat) == num_days) {
             for (j in 1:length(change_point)) {
-                delete_obs_daily <- c(delete_obs_daily, (change_point[j] + 1):(change_point[j] + 7))
+                delete_obs_daily <- c(delete_obs_daily, (change_point[j] + 1):(change_point[j] + 
+                  7))
             }
             delete_obs_daily
         } else if (length(vec_treat) == num_weeks) {
@@ -71,7 +82,8 @@ washout <- function(read_data, metadata) {
     read_data
 }
 
-# Finds the raw mean of the input vector. Returns raw mean for baseline and all other treatments.
+# Finds the raw mean of the input vector. Returns raw mean for baseline and all
+# other treatments.
 find_raw_mean <- function(Y, Treat) {
     
     raw_mean <- c(mean(Y[Treat == "baseline"], na.rm = TRUE))
@@ -82,7 +94,8 @@ find_raw_mean <- function(Y, Treat) {
     raw_mean
 }
 
-# Finds the raw median of the input vector. Returns raw median for baseline and all other treatments.
+# Finds the raw median of the input vector. Returns raw median for baseline and
+# all other treatments.
 find_raw_median <- function(Y, Treat) {
     
     raw_median <- c(median(Y[Treat == "baseline"], na.rm = TRUE))
@@ -98,9 +111,11 @@ check_nof_treatments <- function(treatment, data, nof_treat) {
     length(table(treatment[!is.na(data)])) == nof_treat
 }
 
-# i dont think this is needed at all. i dont rlly see the point of it tbh...  check_success <- function(x){ ifelse(is.list(x), TRUE, x) }
+# i dont think this is needed at all. i dont rlly see the point of it tbh...
+# check_success <- function(x){ ifelse(is.list(x), TRUE, x) }
 
-# Rounds the raw mean. Unchanged if poisson or normal, multiply by 100 if binomial
+# Rounds the raw mean. Unchanged if poisson or normal, multiply by 100 if
+# binomial
 round_number <- function(raw_mean, response) {
     
     if (response == "poisson" || response == "normal") {
@@ -110,7 +125,8 @@ round_number <- function(raw_mean, response) {
     }
 }
 
-# This was used for calculate p-threshold, which is used for the graphs... Other stuff used for graphs not implemented: find_mean_difference,
+# This was used for calculate p-threshold, which is used for the graphs... Other
+# stuff used for graphs not implemented: find_mean_difference,
 # calculate_p_threshold, find_summary_graph
 change <- function(x) {
     x = ifelse(x == 0, 1, x)
@@ -118,7 +134,8 @@ change <- function(x) {
     return(x)
 }
 
-# Our model file will not present our posterior distribution in an explicit form, we may need to exponentiate or use the inverse logit function.
+# Our model file will not present our posterior distribution in an explicit form,
+# we may need to exponentiate or use the inverse logit function.
 link_function <- function(x, response) {
     answer <- if (response == "poisson") {
         exp(x)
@@ -134,8 +151,10 @@ inv_logit <- function(a) {
     1/(1 + exp(-a))
 }
 
-# Function to present a summary of our results. When we take our draws we have coefficients: alpha, beta_A, beta_B, etc. Baseline=alpha,
-# treatmentA=alpha+beta_A, treatmentB=alpha+beta_B, etc. Function returns: input mean and median, mean and median for the treatments, mean and median for the
+# Function to present a summary of our results. When we take our draws we have
+# coefficients: alpha, beta_A, beta_B, etc. Baseline=alpha,
+# treatmentA=alpha+beta_A, treatmentB=alpha+beta_B, etc. Function returns: input
+# mean and median, mean and median for the treatments, mean and median for the
 # coefs, P(treatment>0), P(coef>0), CI(alpha=0.5) for treatment and coef.
 summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
     
@@ -170,7 +189,8 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
         # creating treatment vectors
         treatment = list(samples[, 1])
         for (i in 2:nof_treat) {
-            treatment <- c(treatment, list(link_function(samples[, 1] + samples[, i], response)))
+            treatment <- c(treatment, list(link_function(samples[, 1] + samples[, 
+                i], response)))
         }
         names(treatment) <- treat_n
         
@@ -205,7 +225,8 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
         # probability that the coef draw is greater than zero
         coef_greater_zero <- list()
         for (i in 1:nof_treat) {
-            coef_greater_zero <- c(coef_greater_zero, sum(samples[, i] > 0)/length(samples[, i]))
+            coef_greater_zero <- c(coef_greater_zero, sum(samples[, i] > 0)/length(samples[, 
+                i]))
         }
         names(coef_greater_zero) <- treat_n
         coef_greater_zero <- unlist(coef_greater_zero)
@@ -213,19 +234,23 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
         # confidence interval for the treatment draw.
         treat_confidence <- list()
         for (i in 1:nof_treat) {
-            treat_confidence <- rbind(treat_confidence, quantile(treatment[[i]], c(alpha, 1 - alpha)))
+            treat_confidence <- rbind(treat_confidence, quantile(treatment[[i]], 
+                c(alpha, 1 - alpha)))
         }
         rownames(treat_confidence) <- treat_n
         
         # confidence interval for the coef draw.
         coef_confidence <- list()
         for (i in 1:nof_treat) {
-            coef_confidence <- rbind(coef_confidence, quantile(samples[, i], c(alpha, 1 - alpha)))
+            coef_confidence <- rbind(coef_confidence, quantile(samples[, i], c(alpha, 
+                1 - alpha)))
         }
         rownames(coef_confidence) <- treat_n
         
-        final <- list(input_mean = input_mean, input_median = input_median, treat_mean = treat_mean, treat_median = treat_median, coef_mean = coef_mean, coef_median = coef_median, 
-            treat_greater_zero = treat_greater_zero, coef_greater_zero = coef_greater_zero, treat_confidence = treat_confidence, coef_confidence = coef_confidence)
+        final <- list(input_mean = input_mean, input_median = input_median, treat_mean = treat_mean, 
+            treat_median = treat_median, coef_mean = coef_mean, coef_median = coef_median, 
+            treat_greater_zero = treat_greater_zero, coef_greater_zero = coef_greater_zero, 
+            treat_confidence = treat_confidence, coef_confidence = coef_confidence)
         
         return(final)
     })
@@ -258,19 +283,22 @@ gen_wrap <- function(data, metadata) {
     # running our algorithm
     returns = list()
     for (i in 1:nof_responses) {
-        returns[[i]] <- wrap_helper(read_data[, i], names[i], metadata[length(metadata) - nof_responses + i], nof_treat, as.numeric(metadata["confidence"])/2)
+        returns[[i]] <- wrap_helper(read_data[, i], names[i], metadata[length(metadata) - 
+            nof_responses + i], nof_treat, as.numeric(metadata["confidence"])/2)
     }
     names(returns) <- as.list(names)
     
     # checking that the number of treatments is correct for each observation
     correct_treat <- list()
     for (i in 1:nof_responses) {
-        correct_treat <- c(correct_treat, check_nof_treatments(read_data[, i]$treatment, read_data[, i]$result, nof_treat))
+        correct_treat <- c(correct_treat, check_nof_treatments(read_data[, i]$treatment, 
+            read_data[, i]$result, nof_treat))
     }
     names(correct_treat) <- as.list(names)
     
     # listing some info about algorithm run
-    system_info <- list(enough_data = correct_treat, user_id = metadata$user_id, trigger = metadata$trigger, design = metadata$design, timestap_completion = Sys.time(), 
+    system_info <- list(enough_data = correct_treat, user_id = metadata$user_id, 
+        trigger = metadata$trigger, design = metadata$design, timestap_completion = Sys.time(), 
         version_id = 1, version_date = "8/10/2018")
     
     final <- list(system_info = system_info, model_results = returns)
@@ -278,8 +306,8 @@ gen_wrap <- function(data, metadata) {
     return(final)
 }
 
-# Helper function for our wrap function. Creates the neccesary objects needed to run the nof1 algorithim, runs the algorithim, and then summarizes the
-# result.
+# Helper function for our wrap function. Creates the neccesary objects needed to
+# run the nof1 algorithim, runs the algorithim, and then summarizes the result.
 wrap_helper <- function(specific_data, outcome_name, response_type, nof_treat, alpha) {
     summary <- tryCatch({
         data_out <- list(Treat = specific_data$treatment[[1]], Y = specific_data$result[[1]])
