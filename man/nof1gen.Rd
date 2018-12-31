@@ -4,13 +4,32 @@
 \name{nof1gen}
 \alias{nof1gen}
 \alias{nof1gen-package}
-\title{nof1gen: A package for N of 1 study analysis using Bayesian methods}
+\title{nof1gen: A package for N of 1 clinical trial analysis using Bayesian methods}
 \description{
-A package for running N of 1 study trials
+A package for analyzing N of 1 clinical trials
 }
 \details{
 An N of 1 trial is a clinical trial in which a single patient is the entire trial, a single case study.
-The main purpose of this package was to serve as an analysis tool for one of the PCORI grants we were working with.
-It is designed for N of 1 trials and can fit bayesian versions of linear regression, logistic/ordinal regression, and poisson regression.
+The main purpose of this package is to create a method to analyize a standard N of 1 clinical trial.
+It can fit bayesian versions of linear regression, logistic/ordinal regression, and poisson regression.
 Package includes number of different plotting tools for visualization.
 }
+\section{Format of input data}{
+
+
+Importantly, the input must be fed into the package in a specific way.
+The file must be a .json file and must contain two parts,
+the data section and the metadata section.
+The data section will contain all the observations taken during the trial.
+For each observation, we will have a list of the treatment the patient was on
+at the time followed by a list of all the data points collected. These two lists
+should be the same length. The metadata section will then contain the user_id,
+the trigger, the design of the trial, whether or not a washout period will be used
+(if not an argument in the metadata section, the default is TRUE), the alpha value
+for the confidence interval, the start and end date (YYYY-MM-DD), followed by the
+response type of each of the observations. Either normal, ordina, binomial, or poisson.
+The response types must be in the same order as the observations in the data section
+and must be the last pieces of information in the metadata section. Refer to the
+data-raw folder for several examples data.json and afib_formated.json.
+}
+

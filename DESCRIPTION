@@ -6,7 +6,7 @@ Authors@R: person("Aris", "Paschalidis", email = "aris.paschalidis@gmail.com",
 URL: http://github.com/arisp99/gen_nof1
 Description: A package for running analysis for N of 1 study trials. 
     Runs Bayesian linear regression, ordinal/logistic regression, and poisson regression.
-    Includes different plots to visualize the results.
+    Includes different plots to visualize the results and raw data.
 Depends: R (>= 3.5.0)
 License: GPL-3
 Encoding: UTF-8
