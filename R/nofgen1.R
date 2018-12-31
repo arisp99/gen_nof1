@@ -1,4 +1,4 @@
-#' nof1: A package for N of 1 study analysis using Bayesian methods
+#' nof1gen: A package for N of 1 study analysis using Bayesian methods
 #'
 #' A package for running N of 1 study trials
 #'
@@ -8,7 +8,7 @@
 #' Package includes number of different plotting tools for visualization.
 #'
 #' @docType package
-#' @name nof1
+#' @name nof1gen
 NULL
 
 #' @import coda
