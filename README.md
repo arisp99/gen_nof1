@@ -16,7 +16,7 @@ The file must contain two parts, the data section and the metadata section. The 
 
 # Running the simulations
 
-The package itself contains six example data sets. Below is how we would run the simulations on each of the six datasets.
+The package itself contains six example data sets. Below is how we would run the simulations on each of the six datasets. If we wanted to run a new dataset we would simply need to extract the data from the file (ex. can use fromJSON() if it a .json file) and then we can use the gen_wrap function to run the analysis on the new data set.
 
 ```{r}
 # Use the function gen_wrap to run the model

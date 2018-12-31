@@ -18,7 +18,7 @@
 # This function essentially reads in the data and changes the data that was
 # entered binomially to contain only 0 and 1.
 formated_read_input <- function(data, metadata) {
-  
+
   outcome_names <- names(data)
   output <- data
   # chaning binomials to 0, 1
@@ -41,32 +41,32 @@ formated_read_input <- function(data, metadata) {
 # first couple data points in B could be corrupted because the effects of A are
 # still there. Thus we ingore the first couple data points (set them to NA).
 washout <- function(read_data, metadata) {
-  
+
   # calculating the duration of the study
   finish <- as.Date(metadata$trial_end_date, format = "%Y-%m-%d")
   start <- as.Date(metadata$trial_start_date, format = "%Y-%m-%d")
   date_diff <- as.numeric(finish - start + 1)
-  
+
   # calculating the number of days and weeks
   num_days <- date_diff
   num_weeks <- date_diff/7
-  
+
   # loop over the number of different observations we have
   for (i in 1:length(change_point)) {
     vec_treat <- unlist(read_data[[i]]$treatment)
     change_point <- cumsum(rle(vec_treat)$lengths)
     change_point <- change_point[-length(change_point)]
-    
+
     # we only change weekly results and daily results, more than weekly does not make
     # much sense as enough time would have passed so that the previous #treatment
     # would not make a difference anymore NB: at some point, may want to account for
     # different frequencies, ie. multiple time a day
     delete_obs_daily <- NULL
     delete_obs_weekly <- NULL
-    
+
     if (length(vec_treat) == num_days) {
       for (j in 1:length(change_point)) {
-        delete_obs_daily <- c(delete_obs_daily, (change_point[j] + 1):(change_point[j] + 
+        delete_obs_daily <- c(delete_obs_daily, (change_point[j] + 1):(change_point[j] +
           7))
       }
       delete_obs_daily
@@ -85,7 +85,7 @@ washout <- function(read_data, metadata) {
 # Finds the raw mean of the input vector. Returns raw mean for baseline and all
 # other treatments.
 find_raw_mean <- function(Y, Treat) {
-  
+
   raw_mean <- c(mean(Y[Treat == "baseline"], na.rm = TRUE))
   for (i in 1:(length(unique(unlist(json.file$data[, 1]$treat))) - 1)) {
     raw_mean <- c(raw_mean, mean(Y[Treat == LETTERS[i]], na.rm = TRUE))
@@ -97,7 +97,7 @@ find_raw_mean <- function(Y, Treat) {
 # Finds the raw median of the input vector. Returns raw median for baseline and
 # all other treatments.
 find_raw_median <- function(Y, Treat) {
-  
+
   raw_median <- c(median(Y[Treat == "baseline"], na.rm = TRUE))
   for (i in 1:(length(unique(unlist(json.file$data[, 1]$treat))) - 1)) {
     raw_median <- c(raw_median, median(Y[Treat == LETTERS[i]], na.rm = TRUE))
@@ -117,7 +117,7 @@ check_nof_treatments <- function(treatment, data, nof_treat) {
 # Rounds the raw mean. Unchanged if poisson or normal, multiply by 100 if
 # binomial
 round_number <- function(raw_mean, response) {
-  
+
   if (response == "poisson" || response == "normal") {
     round(raw_mean, 1)
   } else if (response == "binomial") {
@@ -157,17 +157,17 @@ inv_logit <- function(a) {
 # mean and median, mean and median for the treatments, mean and median for the
 # coefs, P(treatment>0), P(coef>0), CI(alpha=0.5) for treatment and coef.
 summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
-  
+
   with(c(nof1, result), {
-    
+
     samples <- do.call(rbind, samples)
-    
+
     # creating our list of treatment names. base, treat_A, treat_B, etc.
     treat_n = list("base")
     for (i in 1:(nof_treat - 1)) {
       treat_n <- c(treat_n, paste("treat", LETTERS[i], sep = "_"))
     }
-    
+
     # mean and median for input vectors
     input_mean = c(mean(Y[Treat == "baseline"], na.rm = TRUE))
     input_median = c(median(Y[Treat == "baseline"], na.rm = TRUE))
@@ -175,25 +175,25 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
       input_mean <- c(input_mean, mean(Y[Treat == LETTERS[i]], na.rm = TRUE))
       input_median <- c(input_median, median(Y[Treat == LETTERS[i]], na.rm = TRUE))
     }
-    
+
     input_mean[is.nan(input_mean)] <- NA
     input_median[is.nan(input_median)] <- NA
-    
+
     # rounding mean and median
     input_mean <- sapply(input_mean, round_number, response)
     input_median <- sapply(input_median, round_number, response)
-    
+
     names(input_mean) <- treat_n
     names(input_median) <- treat_n
-    
+
     # creating treatment vectors
     treatment = list(samples[, 1])
     for (i in 2:nof_treat) {
-      treatment <- c(treatment, list(link_function(samples[, 1] + samples[, 
+      treatment <- c(treatment, list(link_function(samples[, 1] + samples[,
         i], response)))
     }
     names(treatment) <- treat_n
-    
+
     # mean and median for treatment lists
     treat_mean <- list()
     treat_median <- list()
@@ -201,7 +201,7 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
     treat_median <- sapply(treatment, median)
     names(treat_mean) <- treat_n
     names(treat_median) <- treat_n
-    
+
     # mean and median for coef draws
     coef_mean <- list()
     coef_median <- list()
@@ -213,7 +213,7 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
     names(coef_median) <- treat_n
     coef_mean <- unlist(coef_mean)
     coef_median <- unlist(coef_median)
-    
+
     # probability that the treatment draw is greater than zero
     treat_greater_zero <- list()
     for (i in 1:nof_treat) {
@@ -221,46 +221,61 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
     }
     names(treat_greater_zero) <- treat_n
     treat_greater_zero <- unlist(treat_greater_zero)
-    
+
     # probability that the coef draw is greater than zero
     coef_greater_zero <- list()
     for (i in 1:nof_treat) {
-      coef_greater_zero <- c(coef_greater_zero, sum(samples[, i] > 0)/length(samples[, 
+      coef_greater_zero <- c(coef_greater_zero, sum(samples[, i] > 0)/length(samples[,
         i]))
     }
     names(coef_greater_zero) <- treat_n
     coef_greater_zero <- unlist(coef_greater_zero)
-    
+
     # confidence interval for the treatment draw.
     treat_confidence <- list()
     for (i in 1:nof_treat) {
-      treat_confidence <- rbind(treat_confidence, quantile(treatment[[i]], 
+      treat_confidence <- rbind(treat_confidence, quantile(treatment[[i]],
         c(alpha, 1 - alpha)))
     }
     rownames(treat_confidence) <- treat_n
-    
+
     # confidence interval for the coef draw.
     coef_confidence <- list()
     for (i in 1:nof_treat) {
-      coef_confidence <- rbind(coef_confidence, quantile(samples[, i], c(alpha, 
+      coef_confidence <- rbind(coef_confidence, quantile(samples[, i], c(alpha,
         1 - alpha)))
     }
     rownames(coef_confidence) <- treat_n
-    
-    final <- list(input_mean = input_mean, input_median = input_median, treat_mean = treat_mean, 
-      treat_median = treat_median, coef_mean = coef_mean, coef_median = coef_median, 
-      treat_greater_zero = treat_greater_zero, coef_greater_zero = coef_greater_zero, 
+
+    final <- list(input_mean = input_mean, input_median = input_median, treat_mean = treat_mean,
+      treat_median = treat_median, coef_mean = coef_mean, coef_median = coef_median,
+      treat_greater_zero = treat_greater_zero, coef_greater_zero = coef_greater_zero,
       treat_confidence = treat_confidence, coef_confidence = coef_confidence)
-    
+
     return(final)
   })
 }
 
-# Wrapper function to run the nof1 model
+#' Function to run the analysis
+#'
+#' \code{gen_wrap} allows the user to run an anaylsis on a specific data set.
+#'
+#' @param dataset the dataset the analysis will be conducted on.
+#' @return The function returns some useful information about the simulation.
+#' @examples
+#' # We can run the simulataions and get the result using gen_wrap.
+#' result_afib <- gen_wrap(afib_form)
+#' result_diet <- gen_wrap(diet_form)
+#'
+#' # We can then also take the results and convert them into a .json format.
+#' # The same format as our input files were.
+#' output_afib <- toJSON(result_afib, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+#' output_diet <- toJSON(result_diet, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+#' @export
 gen_wrap <- function(dataset) {
   data = dataset$data
   metadata = dataset$metadata
-  
+
   # getting our data read and formated
   read_data <- tryCatch({
     read_dummy <- formated_read_input(data, metadata)
@@ -273,39 +288,39 @@ gen_wrap <- function(dataset) {
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
-  
+
   # print(read_data)
-  
+
   # initializing some values
   names <- names(data)
   nof_responses <- length(data)
   read_len <- length(read_data)
   nof_treat <- length(unique(unlist(data[, 1]$treat)))
-  
+
   # running our algorithm
   returns = list()
   for (i in 1:nof_responses) {
-    returns[[i]] <- wrap_helper(read_data[, i], names[i], metadata[length(metadata) - 
+    returns[[i]] <- wrap_helper(read_data[, i], names[i], metadata[length(metadata) -
       nof_responses + i], nof_treat, as.numeric(metadata["confidence"])/2)
   }
   names(returns) <- as.list(names)
   # print(returns)
-  
+
   # checking that the number of treatments is correct for each observation
   correct_treat <- list()
   for (i in 1:nof_responses) {
-    correct_treat <- c(correct_treat, check_nof_treatments(read_data[, i]$treatment, 
+    correct_treat <- c(correct_treat, check_nof_treatments(read_data[, i]$treatment,
       read_data[, i]$result, nof_treat))
   }
   names(correct_treat) <- as.list(names)
-  
+
   # listing some info about algorithm run
-  system_info <- list(enough_data = correct_treat, user_id = metadata$user_id, 
-    trigger = metadata$trigger, design = metadata$design, timestap_completion = Sys.time(), 
+  system_info <- list(enough_data = correct_treat, user_id = metadata$user_id,
+    trigger = metadata$trigger, design = metadata$design, timestap_completion = Sys.time(),
     version_id = 1, version_date = "8/10/2018")
-  
+
   final <- list(system_info = system_info, model_results = returns)
-  
+
   return(final)
 }
 
