@@ -18,12 +18,12 @@ The file must contain two parts, the data section and the metadata section. The 
 The package itself contains six example data sets. Below is how we would run the simulations on each of the six datasets.
 ```{r}
 # Use the function gen_wrap to run the model
-result_afib <-gen_wrap(afib_form$data, afib_form$metadata)
-result_afib_var <-gen_wrap(afib_form_no_var$data, afib_form_no_var$metadata)
-result_diet <-gen_wrap(diet_form$data, diet_form$metadata)
-result_diet_small <-gen_wrap(diet_small$data, diet_small$metadata)
-result_no_mscd <-gen_wrap(no_mscd$data, no_mscd$metadata)
-result_no_scd <-gen_wrap(no_scd$data, no_scd$metadata)
+result_afib <-gen_wrap(afib_form)
+result_afib_var <-gen_wrap(afib_form_no_var)
+result_diet <-gen_wrap(diet_form)
+result_diet_small <-gen_wrap(diet_small)
+result_no_mscd <-gen_wrap(no_mscd)
+result_no_scd <-gen_wrap(no_scd)
 
 # Get the results in json format
 output_afib <-
