@@ -1,0 +1,21 @@
+Package: gen_nof1
+Title: Analyzes N-Of-1 clinical trials
+Version: 0.0.0.9000
+Authors@R: person("Aris", "Paschalidis", email = "aris.paschalidis@gmail.com",
+    role = c("aut", "cre"))
+Description: A package for running analysis for N of 1 study trials. 
+    Runs Bayesian linear regression, ordinal/logistic regression, and poisson regression.
+    Includes different plots to visualize the results.
+Depends: R (>= 3.5.0)
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    coda (>= 0.19-2),
+    ggplot2 (>= 3.1.0),
+    jsonlite (>= 1.6),
+    MASS (>= 7.3-49),
+    rjags (>= 4-8),
+    scales (>= 1.0.0)
+RoxygenNote: 6.1.1
+
