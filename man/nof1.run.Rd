@@ -43,7 +43,7 @@ JAGS code, etc. using \code{\link{nof1.data}}.
 laughter
 Y <- laughter$Y
 Treat <- laughter$Treat
-nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = "Usual Routine", response = "ordinal")
+nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = 'Usual Routine', response = 'ordinal')
 result <- nof1.run(nof1)
 summary(result$samples)
 }

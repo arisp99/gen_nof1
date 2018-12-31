@@ -36,10 +36,10 @@ nof1.data(Y, Treat, baseline = "baseline", ncat = NULL,
 
 \item{rho.prior}{Prior for the correlated error model. Still under development.}
 
-\item{hy.prior}{Prior for the heterogeneity parameter. Supports uniform, gamma, and half normal for normal and binomial response and wishart for multinomial response. It should be a list of length 3, where first element should be the distribution (one of dunif, dgamma, dhnorm, dwish) and the next two are the parameters associated with the distribution. For example, list("dunif", 0, 5) give uniform prior with lower bound 0 and upper bound 5 for the heterogeneity parameter. For wishart distribution, the last two parameter would be the scale matrix and the degrees of freedom.}
+\item{hy.prior}{Prior for the heterogeneity parameter. Supports uniform, gamma, and half normal for normal and binomial response and wishart for multinomial response. It should be a list of length 3, where first element should be the distribution (one of dunif, dgamma, dhnorm, dwish) and the next two are the parameters associated with the distribution. For example, list('dunif', 0, 5) give uniform prior with lower bound 0 and upper bound 5 for the heterogeneity parameter. For wishart distribution, the last two parameter would be the scale matrix and the degrees of freedom.}
 }
 \value{
-Creates list of variables that are used to run the model using \code{\link{nof1gen.run}}
+Creates list of variables that are used to run the model using \code{\link{nof1.run}}
 \item{Y}{Outcome}
 \item{Treat}{Treatment}
 \item{baseline}{Baseline variable}
@@ -58,7 +58,7 @@ Make an N of 1 object containing data, priors, and a jags model file
 laughter
 Y <- laughter$Y
 Treat <- laughter$Treat
-nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = "Usual Routine", response = "ordinal")
+nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = 'Usual Routine', response = 'ordinal')
 str(nof1)
 cat(nof1$code)
 }

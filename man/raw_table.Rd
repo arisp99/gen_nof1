@@ -2,19 +2,31 @@
 % Please edit documentation in R/nof1gen.summary.R
 \name{raw_table}
 \alias{raw_table}
-\title{Summary data table for nof1}
+\title{Summary data table}
 \usage{
 raw_table(nof1)
 }
 \arguments{
 \item{nof1}{nof1 object created using nof1.data}
 }
-\description{
-Summary data table for nof1
+\value{
+Gives a comprhensive table with several statistical values.
+Each column indicates the value given. For a normal or poisson
+response type the following are given:
+\item{Treat}{The treatment recieved}
+\item{mean}{The average value of the outcome}
+\item{sd}{The standard deviation for the outcome}
+\item{2.5\%}{2.5\% of the data are equal to or less than this value}
+\item{50\%}{50\% of the data are equal to or less than this value}
+\item{97.5\%}{97.5\% of the data are equal to or less than this value}
+For a binomial or ordinal response type, the following are given:
+\item{A}{Number of data points taken while in Treatment A phase
+that have a value of 0 and 1, in the first and second row, respectivly}
+\item{B}{Number of data points taken while in Treatment B phase
+that have a value of 0 and 1, in the first and second row, respectivly}
+\item{baseline}{Number of data points taken while in baseline phase
+that have a value of 0 and 1, in the first and second row, respectivly}
 }
-\examples{
-Y <- laughter$Y
-Treat <- laughter$Treat
-nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = "Usual Routine", response = "ordinal")
-raw_table(nof1)
+\description{
+Provides a summary data table for the particular outcome in a particular dataset.
 }
