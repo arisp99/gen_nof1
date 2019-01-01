@@ -212,7 +212,7 @@ probability_barplot <- function(result.list, result.name = NULL) {
 
 #' Raw Graphs and Tables
 #'
-#' \code{make_raw_graphs} allows the user to create a specific table or graph
+#' \code{raw_graphs} allows the user to create a specific table or graph
 #' for an outcome. Possible graphs include: time_series_plot, frequency_plot,
 #' stacked_percent_barplot, and raw_table.
 #'
@@ -225,8 +225,7 @@ probability_barplot <- function(result.list, result.name = NULL) {
 #' make_raw_graphs("raw_table", diet_form, 1, title = "Daily Stool Consistency")
 #' make_raw_graphs("stacked_percent_barplot", diet_form, 1, title = "Daily Stool Consistency")
 #' @export
-
-make_raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL,
+raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL,
   xlab = NULL, title = NULL) {
   data = dataset$data
   metadata = dataset$metadata
@@ -262,4 +261,63 @@ make_raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL
   } else if (graph == "raw_table") {
     raw_table(nof1_out)
   } else {"Not a viable graph or table"}
+}
+
+result_graphs <- function(graph, dataset, kern_index, title = NULL, result.name = NULL) {
+  data = dataset$data
+  metadata = dataset$metadata
+
+  # getting our data read and formated
+  read_data <- tryCatch({
+    read_dummy <- formated_read_input(data, metadata)
+    if (metadata$washout == "FALSE" || is.null(metadata$washout)) {
+      read_dummy
+    } else {
+      read_dummy <- washout(read_dummy, metadata)
+      read_dummy
+    }
+  }, error = function(error) {
+    return(paste("input read error: ", error))
+  })
+
+  # Define some variables to be used in constructing nof1 object
+  names <- names(data)
+  nof_responses <- length(data)
+  read_len <- length(read_data)
+  nof_treat <- length(unique(unlist(data[, 1]$treat)))
+
+  if (graph == "kernel_plot") {
+    response_type = metadata[length(metadata) - nof_responses + kern_index]
+    data_out <- list(Treat = read_data[, kern_index]$treatment[[1]], Y = read_data[, kern_index]$result[[1]])
+    nof1_out <- with(data_out, {nof1.data(Y, Treat, response = response_type)})
+    result_out <- nof1.run(nof1_out)
+    print(str(result_out))
+    kernel_plot(result_out, title = title)
+  }
+  else {
+    returns = list()
+    for (i in 1:nof_responses) {
+      returns[[i]] <- wrap_helper(read_data[, i], names[i], metadata[length(metadata) -
+        nof_responses + i], nof_treat, as.numeric(metadata["confidence"])/2)
+    }
+    names(returns) <- as.list(names)
+    if (graph == "odds_ratio_plot") {
+      odds_ratio_plot(nof1_out, result.name = result.name, title = title)
+    } else if (graph == "probability_barplot") {
+      probability_barplot(nof1_out, result.name)
+    }
+  }
+}
+
+# Helper for result_graphs
+result_graphs_helper <- function(specific_data, outcome_name, response_type, nof_treat) {
+  summary <- tryCatch({
+    data_out <- list(Treat = specific_data$treatment[[1]], Y = specific_data$result[[1]])
+    nof1_out <- with(data_out, {
+      nof1.data(Y, Treat, response = response_type)
+    })
+    result_out <- nof1.run(nof1_out)
+  }, error = function(error) {
+    return(paste(outcome_name, "run error: ", error))
+  })
 }
