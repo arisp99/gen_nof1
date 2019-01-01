@@ -45,8 +45,8 @@ Graphs can also be used to analyze the data. There are several graphs that can b
 
 ```{r}
 # Use the function make_raw_graphs to creat the graphs
-make_raw_graphs("time_series_plot", diet_form, 1) #N.B. time_series_plot only works for ordinal data as of now. It may also be able to eventaully work for binomial data.
-make_raw_graphs("frequency_plot", diet_form, 2)
-make_raw_graphs("stacked_percent_barplot", diet_form, 1)
-make_raw_graphs("raw_table", diet_form, 2)
+raw_graphs("time_series_plot", diet_form, 1) #N.B. time_series_plot only works for ordinal data as of now. It may also be able to eventaully work for binomial data.
+raw_graphs("frequency_plot", diet_form, 2)
+raw_graphs("stacked_percent_barplot", diet_form, 1)
+raw_graphs("raw_table", diet_form, 2)
 ```

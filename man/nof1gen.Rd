@@ -18,8 +18,7 @@ Package includes number of different plotting tools for visualization.
 
 
 Importantly, the input must be fed into the package in a specific way.
-The file must be a .json file and must contain two parts,
-the data section and the metadata section.
+The file must contain two parts, the data section and the metadata section.
 The data section will contain all the observations taken during the trial.
 For each observation, we will have a list of the treatment the patient was on
 at the time followed by a list of all the data points collected. These two lists
