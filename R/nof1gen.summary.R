@@ -143,6 +143,10 @@ raw_table <- function(nof1) {
 kernel_plot <- function(result, xlim_value = c(0, 10), title = NULL) {
   samples <- do.call(rbind, result$samples)
   beta_variable <- exp(samples[, grep("beta", colnames(samples))])
+  print(str(samples))
+  print(str(beta_variable))
+  # print(beta_variable)
+  # print(beta_variable[0, ])
   data <- as.data.frame(beta_variable)
 
   ggplot(data, aes(beta_variable)) + geom_density() + theme_bw() + xlim(xlim_value[1],
@@ -186,7 +190,9 @@ probability_barplot <- function(result.list, result.name = NULL) {
 
   for (i in 1:length(result.list)) {
     result <- result.list[[i]]
+    # print(str(result$samples))
     samples <- do.call(rbind, result$samples)
+    # print(str(samples))
     probability[(i - 1) * 2 + 1] <- mean(exp(samples[, grep("beta", colnames(samples))]) >
       1)
     probability[i * 2] <- 1 - probability[(i - 1) * 2 + 1]
@@ -200,6 +206,11 @@ probability_barplot <- function(result.list, result.name = NULL) {
     }
     result.name <- rep(result.name, each = 2)
   }
+  # print(probability)
+  # print(result.name)
+  print((result.list[[1]]$nof1$Treat)[2])
+  # print(rep(c(levels(result.list$result$nof1$Treat)[2],
+              # levels(result.list$result$nof1$Treat)[1]), length(result.list)))
 
   data <- data.frame(probability = probability, result.name = result.name,
     Treat = rep(c(levels(result.list$result$nof1$Treat)[2],
@@ -291,20 +302,22 @@ result_graphs <- function(graph, dataset, kern_index, title = NULL, result.name 
     data_out <- list(Treat = read_data[, kern_index]$treatment[[1]], Y = read_data[, kern_index]$result[[1]])
     nof1_out <- with(data_out, {nof1.data(Y, Treat, response = response_type)})
     result_out <- nof1.run(nof1_out)
-    print(str(result_out))
+    # print(str(result_out))
     kernel_plot(result_out, title = title)
   }
   else {
     returns = list()
     for (i in 1:nof_responses) {
-      returns[[i]] <- wrap_helper(read_data[, i], names[i], metadata[length(metadata) -
-        nof_responses + i], nof_treat, as.numeric(metadata["confidence"])/2)
+      returns[[i]] <- result_graphs_helper(read_data[, i], names[i], metadata[length(metadata) -
+        nof_responses + i], nof_treat)
     }
     names(returns) <- as.list(names)
+    # print(str(returns))
     if (graph == "odds_ratio_plot") {
-      odds_ratio_plot(nof1_out, result.name = result.name, title = title)
+      odds_ratio_plot(returns, result.name = result.name, title = title)
     } else if (graph == "probability_barplot") {
-      probability_barplot(nof1_out, result.name)
+      probability_barplot(returns, result.name = result.name)
+    } else {"Not a viable graph or table"
     }
   }
 }
