@@ -168,6 +168,12 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
       treat_n <- c(treat_n, paste("treat", LETTERS[i], sep = "_"))
     }
 
+    # creating our list of coef names
+    coef_n = list("alpha")
+    for (i in 1:(nof_treat - 1)) {
+      coef_n <- c(coef_n, paste("beta", i, sep = "_"))
+    }
+
     # mean and median for input vectors
     input_mean = c(mean(Y[Treat == "baseline"], na.rm = TRUE))
     input_median = c(median(Y[Treat == "baseline"], na.rm = TRUE))
@@ -209,8 +215,8 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
       coef_mean <- c(coef_mean, mean(samples[, i]))
       coef_median <- c(coef_median, median(samples[, i]))
     }
-    names(coef_mean) <- treat_n
-    names(coef_median) <- treat_n
+    names(coef_mean) <- coef_n
+    names(coef_median) <- coef_n
     coef_mean <- unlist(coef_mean)
     coef_median <- unlist(coef_median)
 
@@ -262,13 +268,39 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
 #'
 #' @param dataset the dataset the analysis will be conducted on.
 #' @return The function returns some useful information about the simulation.
+#' We have two different categories of information: system_info and model_results.
+#' \item{system_info}{Provides information about the clincical trial conducted}
+#' \item{enough_data}{A boolean that tells us whether the number length of the
+#'  treatment vector and observation vectors are the same}
+#' \item{user_id}{The user id for the particular patient whose data was analyzed}
+#' \item{trigger}{The trigger the study was examining}
+#' \item{design}{How the study was designed. How many weeks of treatment A? Of
+#'  treatment B?}
+#' \item{model_results}{For each observation provides information about the model results}
+#' \item{input_mean}{The mean of the data inputed}
+#' \item{input_median}{The median of the data inputed}
+#' \item{treat_mean}{The mean of the data outputed for each treatment type}
+#' \item{treat_median}{The median of the data outputed for each treatment type}
+#' \item{coef_mean}{The mean of the data outputed for each coefficient}
+#' \item{coef_median}{The median of the data outputed for each coefficient}
+#' \item{treat_greater_zero}{The probability that the output value is greater
+#'  than zero for each treatment type}
+#' \item{coef_greater_zero}{The probability that the output value is greater
+#'  than zero for each coefficient}
+#' \item{treat_confidence}{The confidence interva (percent is specified in
+#'  the metadata section) of the input data set of the output value for
+#'  each treatment type}
+#' \item{coef_confidence}{The confidence interva (percent is specified in
+#'  the metadata section) of the input data set of the output value for
+#'  each coefficient}
+#'
 #' @examples
 #' # We can run the simulataions and get the result using gen_wrap.
 #' result_afib <- gen_wrap(afib_form)
 #' result_diet <- gen_wrap(diet_form)
 #'
-#' # We can then also take the results and convert them into a .json format.
-#' # The same format as our input files were.
+#' # We can then also take the results and convert them into various formats.
+#' # For example to convert into a .json format we can do the following.
 #' output_afib <- toJSON(result_afib, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 #' output_diet <- toJSON(result_diet, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 #' @export
@@ -304,7 +336,6 @@ gen_wrap <- function(dataset) {
       nof_responses + i], nof_treat, as.numeric(metadata["confidence"])/2)
   }
   names(returns) <- as.list(names)
-  # print(returns)
 
   # checking that the number of treatments is correct for each observation
   correct_treat <- list()
@@ -313,11 +344,11 @@ gen_wrap <- function(dataset) {
       read_data[, i]$result, nof_treat))
   }
   names(correct_treat) <- as.list(names)
+  print(correct_treat)
 
   # listing some info about algorithm run
-  system_info <- list(enough_data = correct_treat, user_id = metadata$user_id,
-    trigger = metadata$trigger, design = metadata$design, timestap_completion = Sys.time(),
-    version_id = 1, version_date = "8/10/2018")
+  system_info <- list(enough_data = correct_treat[[1]], user_id = metadata$user_id,
+    trigger = metadata$trigger, design = metadata$design, timestap_completion = Sys.time())
 
   final <- list(system_info = system_info, model_results = returns)
 
