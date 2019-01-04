@@ -17,13 +17,13 @@
 
 # This function essentially reads in the data and changes the data that was
 # entered binomially to contain only 0 and 1.
-formated_read_input <- function(data, metadata) {
+formated_read_input <- function(data, response_type) {
 
   outcome_names <- names(data)
   output <- data
   # chaning binomials to 0, 1
   for (i in 1:length(outcome_names)) {
-    if (metadata[[length(metadata) - length(outcome_names) + i]] == "binomial") {
+    if (response_type == "binomial") {
       fixed <- unlist(data[, i]$result)
       if (all(fixed %in% c(0, 1, NA))) {
         output[[outcome_names[i]]]$result = list(fixed)
@@ -151,12 +151,38 @@ inv_logit <- function(a) {
   1/(1 + exp(-a))
 }
 
+#' Function to present a summary of our results
+#'
+#' A neat function to summarize the results.
+#'
+#' @param nof1 The data file created by \code{nof1.data}.
+#' @param result The result file created by \code{nof1.run}
+#' @param nof_treat The number of different treatments.
+#' @param alpha The alpha value for the confidence interval. If no value is
+#' entered will give the 95\% confidence interval.
+#' @return The function returns some useful information about the simulation.
+#' \item{input_mean}{The mean of the data inputed}
+#' \item{input_median}{The median of the data inputed}
+#' \item{treat_mean}{The mean of the data outputed for each treatment type}
+#' \item{treat_median}{The median of the data outputed for each treatment type}
+#' \item{coef_mean}{The mean of the data outputed for each coefficient}
+#' \item{coef_median}{The median of the data outputed for each coefficient}
+#' \item{treat_greater_zero}{The probability that the output value is greater
+#'  than zero for each treatment type}
+#' \item{coef_greater_zero}{The probability that the output value is greater
+#'  than zero for each coefficient}
+#' \item{treat_confidence}{The confidence interval of the input data
+#' set of the output value for each treatment type}
+#' \item{coef_confidence}{The confidence interval of the input data set
+#' of the output value for each coefficient}
+#' @export
+
 # Function to present a summary of our results. When we take our draws we have
 # coefficients: alpha, beta_A, beta_B, etc.  Baseline=alpha,
 # treatmentA=alpha+beta_A, treatmentB=alpha+beta_B, etc. Function returns: input
 # mean and median, mean and median for the treatments, mean and median for the
 # coefs, P(treatment>0), P(coef>0), CI(alpha=0.5) for treatment and coef.
-summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
+summarize_nof1 <- function(nof1, result, nof_treat, alpha = 0.025) {
 
   with(c(nof1, result), {
 
@@ -262,56 +288,32 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha) {
   })
 }
 
-#' Function to run the analysis
+#' Function to run the analysis on all outcomes
 #'
-#' \code{gen_wrap} allows the user to run an anaylsis on a specific data set.
+#' \code{wrap_all} allows the user to run an anaylsis on a specific data set.
 #'
-#' @param dataset the dataset the analysis will be conducted on.
-#' @return The function returns some useful information about the simulation.
-#' We have two different categories of information: system_info and model_results.
+#' @param dataset The dataset the analysis will be conducted on.
+#' @param result_list A list of all the models to run. Options are: normal,
+#' binomial, poisson, or ordinal.
+#' @return The function returns some useful information about the simulation
+#'  as well as information about the simulation.
 #' \item{system_info}{Provides information about the clincical trial conducted}
-#' \item{enough_data}{A boolean that tells us whether the number length of the
-#'  treatment vector and observation vectors are the same}
 #' \item{user_id}{The user id for the particular patient whose data was analyzed}
 #' \item{trigger}{The trigger the study was examining}
 #' \item{design}{How the study was designed. How many weeks of treatment A? Of
 #'  treatment B?}
-#' \item{model_results}{For each observation provides information about the model results}
-#' \item{input_mean}{The mean of the data inputed}
-#' \item{input_median}{The median of the data inputed}
-#' \item{treat_mean}{The mean of the data outputed for each treatment type}
-#' \item{treat_median}{The median of the data outputed for each treatment type}
-#' \item{coef_mean}{The mean of the data outputed for each coefficient}
-#' \item{coef_median}{The median of the data outputed for each coefficient}
-#' \item{treat_greater_zero}{The probability that the output value is greater
-#'  than zero for each treatment type}
-#' \item{coef_greater_zero}{The probability that the output value is greater
-#'  than zero for each coefficient}
-#' \item{treat_confidence}{The confidence interva (percent is specified in
-#'  the metadata section) of the input data set of the output value for
-#'  each treatment type}
-#' \item{coef_confidence}{The confidence interva (percent is specified in
-#'  the metadata section) of the input data set of the output value for
-#'  each coefficient}
-#'
-#' @examples
-#' # We can run the simulataions and get the result using gen_wrap.
-#' result_afib <- gen_wrap(afib_form)
-#' result_diet <- gen_wrap(diet_form)
-#'
-#' # We can then also take the results and convert them into various formats.
-#' # For example to convert into a .json format we can do the following.
-#' output_afib <- toJSON(result_afib, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
-#' output_diet <- toJSON(result_diet, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+#' \item{nof_treat}{The number of different treatments that were admininstered}
+#' \item{data}{This the the data file that was constructed using \code{nof1.data}}
+#' \item{samples}{This is the result of \code{nof1.run}. It is the result of the simulation}
 #' @export
-gen_wrap <- function(dataset) {
+wrap_all <- function(dataset, response_list) {
   data = dataset$data
   metadata = dataset$metadata
 
   # getting our data read and formated
   read_data <- tryCatch({
-    read_dummy <- formated_read_input(data, metadata)
-    if (metadata$washout == "FALSE" || is.null(metadata$washout)) {
+    read_dummy <- formated_read_input(data, response_type)
+    if (!washout) {
       read_dummy
     } else {
       read_dummy <- washout(read_dummy, metadata)
@@ -320,8 +322,6 @@ gen_wrap <- function(dataset) {
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
-
-  # print(read_data)
 
   # initializing some values
   names <- names(data)
@@ -332,40 +332,127 @@ gen_wrap <- function(dataset) {
   # running our algorithm
   returns = list()
   for (i in 1:nof_responses) {
-    returns[[i]] <- wrap_helper(read_data[, i], names[i], metadata[length(metadata) -
-      nof_responses + i], nof_treat, as.numeric(metadata["confidence"])/2)
+    returns[[i]] <- wrap_helper(read_data[, i], response_list[i])
   }
   names(returns) <- as.list(names)
 
   # checking that the number of treatments is correct for each observation
-  correct_treat <- list()
-  for (i in 1:nof_responses) {
-    correct_treat <- c(correct_treat, check_nof_treatments(read_data[, i]$treatment,
-      read_data[, i]$result, nof_treat))
-  }
-  names(correct_treat) <- as.list(names)
-  print(correct_treat)
+  # correct_treat <- list()
+  # for (i in 1:nof_responses) {
+  #   correct_treat <- c(correct_treat, check_nof_treatments(read_data[, i]$treatment,
+  #     read_data[, i]$result, nof_treat))
+  # }
+  # names(correct_treat) <- as.list(names)
 
   # listing some info about algorithm run
-  system_info <- list(enough_data = correct_treat[[1]], user_id = metadata$user_id,
-    trigger = metadata$trigger, design = metadata$design, timestap_completion = Sys.time())
+  # system_info <- list(enough_data = correct_treat[[1]], user_id = metadata$user_id,
+  #   trigger = metadata$trigger, design = metadata$design, timestap_completion = Sys.time())
+
+  system_info <- list(user_id = metadata$user_id, trigger = metadata$trigger,
+                      design = metadata$design,  nof_treat = nof_treat, timestap_completion = Sys.time())
 
   final <- list(system_info = system_info, model_results = returns)
 
   return(final)
 }
 
+#' Function to run the analysis on a single outcome
+#'
+#' \code{wrap_single} allows the user to run an anaylsis
+#'  on a specific outcome in a specific data set.
+#'
+#' @param dataset The dataset the analysis will be conducted on.
+#' @param outcome_name The name of the outcome the analysis will be run on.
+#' @param result_type The type of model to run. Options are: normal,
+#' binomial, poisson, or ordinal.
+#' @return The function returns some useful information about the simulation
+#'  as well as information about the simulation.
+#' \item{system_info}{Provides information about the clincical trial conducted}
+#' \item{user_id}{The user id for the particular patient whose data was analyzed}
+#' \item{trigger}{The trigger the study was examining}
+#' \item{design}{How the study was designed. How many weeks of treatment A? Of
+#'  treatment B?}
+#' \item{nof_treat}{The number of different treatments that were admininstered}
+#' \item{data}{This the the data file that was constructed using \code{nof1.data}}
+#' \item{samples}{This is the result of \code{nof1.run}. It is the result of the simulation}
+#'
+#' @export
+wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE) {
+  data = dataset$data
+  metadata = dataset$metadata
+
+  # getting our data read and formated
+  read_data <- tryCatch({
+    read_dummy <- formated_read_input(data, response_type)
+    if (!washout) {
+      read_dummy
+    } else {
+      read_dummy <- washout(read_dummy, metadata)
+      read_dummy
+    }
+  }, error = function(error) {
+    return(paste("input read error: ", error))
+  })
+
+  # initializing some values
+  data_names <- names(data)
+  nof_responses <- length(data)
+  nof_treat <- length(unique(unlist(data[, 1]$treat)))
+
+  # determining what index the outcome is
+  for (i in 1:nof_responses) {
+    if (data_names[i] == outcome_name) {
+      index = i
+    }
+  }
+
+  # running our algorithm
+  result <- wrap_helper(read_data[[as.name(outcome_name)]], response_type)
+
+  # checking that the number of treatments is correct for each observation
+  # correct_treat <- check_nof_treatments(read_data[[as.name(outcome_name)]]$treatment,
+  #   read_data[[as.name(outcome_name)]]$result, nof_treat)
+
+  # listing some info about algorithm run
+  # system_info <- list(enough_data = correct_treat[[1]], user_id = metadata$user_id,
+  #                     trigger = metadata$trigger, design = metadata$design, timestap_completion = Sys.time())
+
+  system_info <- list(user_id = metadata$user_id, trigger = metadata$trigger,
+                      design = metadata$design, nof_treat = nof_treat, timestap_completion = Sys.time())
+
+  # in final output, print system_info, the data file, and result file
+  final <- list(system_info = system_info, data = result[[1]], samples = result[[2]])
+
+  return(final)
+}
+
+#' Helper function used to run the models
+#'
+#' Allows the user to run an anaylsis on a specific data set.
+#'
+#' @param specific_data The specific part of the dataset the analysis will be conducted on.
+#' @param response_type The type of model we want to simulate. Can be normal,
+#' binomial, poisson, or ordinal.
+#' @return The function returns a list of two objects.
+#' \item{nof1_out}{This the the data file that was constructed using \code{nof1.data}}
+#' \item{result_out}{This is the result of \code{nof1.run}. It is the result of the simulations}
+#'
+wrap_helper <- function(specific_data, response_type) {
+  data_out <- list(Treat = specific_data$treatment[[1]], Y = specific_data$result[[1]])
+  nof1_out <- with(data_out, {nof1.data(Y, Treat, response = response_type)})
+  result_out <- nof1.run(nof1_out)
+  return(list(nof1_out, result_out))
+}
+
 # Helper function for our wrap function. Creates the neccesary objects needed to
 # run the nof1 algorithim, runs the algorithim, and then summarizes the result.
-wrap_helper <- function(specific_data, outcome_name, response_type, nof_treat, alpha) {
-  summary <- tryCatch({
+wrap_helper2 <- function(specific_data, response_type, nof_treat) {
     data_out <- list(Treat = specific_data$treatment[[1]], Y = specific_data$result[[1]])
     nof1_out <- with(data_out, {
       nof1.data(Y, Treat, response = response_type)
     })
     result_out <- nof1.run(nof1_out)
-    summarize_nof1(nof1_out, result_out, nof_treat, alpha)
-  }, error = function(error) {
-    return(paste(outcome_name, "run error: ", error))
-  })
+    print(str(nof1_out))
+    print(str(result_out))
+    summarize_nof1(nof1_out, result_out, nof_treat)
 }
