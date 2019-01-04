@@ -16,21 +16,21 @@ The file must contain two parts, the data section and the metadata section. The 
 
 # Running the simulations
 
-The package itself contains six example data sets. Below is how we would run the simulations on each of the six datasets. If we wanted to run a new dataset we would simply need to extract the data from the file (ex. can use fromJSON() if it a .json file) and then we can use the gen_wrap function to run the analysis on the new data set.
+The package itself contains six example data sets. Below is how we would run the simulations on each of the six datasets. If we wanted to run a new dataset we would simply need to extract the data from the file (ex. can use fromJSON() if it a .json file) and then we can use either the wrap_single function or the wrap_all function to run the analysis on the new data set. wrap_single will run the analysis on a single specified outcome whereas wrap_all will run the analysis on all the outcomes.
 
 ```{r}
-# Use the function gen_wrap to run the model
-result_afib <-gen_wrap(afib_form)
-result_afib_var <-gen_wrap(afib_form_no_var)
-result_diet <-gen_wrap(diet_form)
-result_diet_small <-gen_wrap(diet_form_small)
-result_no_mscd <-gen_wrap(no_mscd_form)
-result_no_scd <-gen_wrap(no_scd_form)
+# Use the function wrap_single to run the model on a single outcome
+result_afib       <- wrap_single(afib_form, "afib_episode_yn", "binomial", FALSE)
+result_afib_var   <- wrap_single(afib_form_no_var, "afib_episode_yn", "binomial", FALSE)
+result_diet       <- wrap_single(diet_form, "daily_stool_consistency", "binomial", FALSE)
+result_diet_small <- wrap_single(diet_form_small, "daily_stool_frequency", "poisson", FALSE)
+result_no_mscd    <- wrap_single(no_mscd_form, "promis_pain_interference", "normal", FALSE)
+result_no_scd     <- wrap_single(no_scd_form, "promis_gi_symptoms", "normal", FALSE)
 ```
 
 # Summarizing the simulations
 
-Once we run the simulations, we can then summarize them to get some basic information like so.
+Once we run the simulations, we can then summarize them to get some basic information.
 
 ```{r}
 # Use the summarize_nof1 function to summarize the simulations
