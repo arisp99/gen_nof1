@@ -4,7 +4,7 @@
       "daily_stool_consistency": {
 	"treatment": ["baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"],
 	"result": [7, 7, 7, 7, 7, 2, 7, 2, 7, 7, 7, 2, 7, 7, 7, 2, 7, 7, 2, 7, 2, 7, 7, 7, 7, 2, 2, 7, 2, 2, 7, 7, 7, 2, 7, 2, 2, 2, 7, 2, 7, 2, 2, 7, 7, 7, 7, 7, 7, 2, 2, 7, 7, 7, 7, 7, 7, 2, 7, 2, 7, 2, 7, 7, 7, 7, 2, 7, 7, 2]
-      }, 
+      },
       "daily_stool_frequency": {
 	"treatment": ["baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"],
 	"result": [4, 2, 2, 4, 4, 2, 2, 3, 2, 3, 6, 0, 5, 1, 4, 2, 1, 2, 5, 4, 3, 2, 4, 0, 4, 6, 6, 2, 0, 1, 4, 3, 2, 5, 4, 3, 2, 2, 2, 4, 4, 4, 3, 6, 1, 5, 3, 2, 2, 2, 1, 2, 4, 4, 5, 5, 2, 3, 2, 3, 4, 3, 10, 1, 1, 2, 1, 3, 3, 6]
@@ -23,8 +23,6 @@
     "user_id": 300000,
     "trigger": "diet",
     "design": "B",
-    "washout": "FALSE",
-    "confidence": "0.05",
     "trial_start_date": "2017-01-01",
     "trial_end_date": "2017-08-26",
     "daily_stool_consistency": "binomial",
@@ -32,4 +30,4 @@
     "promis_pain_interference": "normal",
     "promis_gi_symptoms": "normal"
   }
-} 
+}
