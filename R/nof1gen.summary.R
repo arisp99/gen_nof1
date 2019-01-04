@@ -227,41 +227,34 @@ probability_barplot <- function(result.list, result.name = NULL) {
 #' for an outcome. Possible graphs include: time_series_plot, frequency_plot,
 #' stacked_percent_barplot, and raw_table.
 #'
-#' @param graph (str) the specific table or graph to construct. Options include:
-#' time_series_plot, frequency_plot, stacked_percent_barplot, and raw_table.
-#' @param dataset the dataset used to create the table or graph
-#' @param index (int) the outcome index in the dataset
-#' @param ... specific paramaters depending on table or graph to constuct
+#' @param graph A string which specifies the specific table or graph to construct.
+#'  Options include: time_series_plot, frequency_plot, stacked_percent_barplot, and raw_table.
+#' @param model_result The analysis we want to make the graphs for. It is
+#' the output of \code{wrap_single}
+#' @param multiple A boolean that indicates if the \code{model_result} input has multiple
+#'  possible outcome. In other words, was \code{model_result} input created \code{\link{from wrap_all}}
+#'  or \code{\link{wrap_single}}? The default is FALSE meaning we only have one outcome in the
+#'  \code{model_result} input.
+#' @param outcome_name A string that indicates the name of the outcome we wish to graph
+#' @param ... Specific paramaters depending on table or graph to constuct
 #' @examples
-#' make_raw_graphs("raw_table", diet_form, 1, title = "Daily Stool Consistency")
-#' make_raw_graphs("stacked_percent_barplot", diet_form, 1, title = "Daily Stool Consistency")
+#' raw_graphs("raw_table", all_result_afib, TRUE, "afib_episode_yn")
+#' raw_graphs("frequency_plot", result_afib)
 #' @export
-raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL,
-  xlab = NULL, title = NULL) {
-  data = dataset$data
-  metadata = dataset$metadata
+raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NULL, time = NULL,
+                        timestamp = NULL, xlab = NULL, title = NULL) {
 
-  # getting our data read and formated
-  read_data <- tryCatch({
-    read_dummy <- formated_read_input(data, metadata)
-    if (metadata$washout == "FALSE" || is.null(metadata$washout)) {
-      read_dummy
-    } else {
-      read_dummy <- washout(read_dummy, metadata)
-      read_dummy
+  if (!multiple) {
+    nof1_out <- model_result[[2]][[1]]
+  }
+  else {
+    if (is.null(outcome_name)) {
+      return("Need to specify outcome name when have model_result input with multiple possible outcome")
     }
-  }, error = function(error) {
-    return(paste("input read error: ", error))
-  })
-
-  # Define some variables to be used in constructing nof1 object
-  nof_responses <- length(data)
-  response_type = metadata[length(metadata) - nof_responses + index]
-
-  data_out <- list(Treat = read_data[, index]$treatment[[1]], Y = read_data[, index]$result[[1]])
-  nof1_out <- with(data_out, {
-    nof1.data(Y, Treat, response = response_type)
-  })
+    else {
+      nof1_out <- model_result[[2]][[as.name(outcome_name)]][[1]]
+    }
+  }
 
   if (graph == "time_series_plot") {
     time_series_plot(nof1_out)
@@ -273,6 +266,44 @@ raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL,
     raw_table(nof1_out)
   } else {"Not a viable graph or table"}
 }
+
+# raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL,
+#   xlab = NULL, title = NULL) {
+#   data = dataset$data
+#   metadata = dataset$metadata
+#
+#   # getting our data read and formated
+#   read_data <- tryCatch({
+#     read_dummy <- formated_read_input(data, metadata)
+#     if (metadata$washout == "FALSE" || is.null(metadata$washout)) {
+#       read_dummy
+#     } else {
+#       read_dummy <- washout(read_dummy, metadata)
+#       read_dummy
+#     }
+#   }, error = function(error) {
+#     return(paste("input read error: ", error))
+#   })
+#
+#   # Define some variables to be used in constructing nof1 object
+#   nof_responses <- length(data)
+#   response_type = metadata[length(metadata) - nof_responses + index]
+#
+#   data_out <- list(Treat = read_data[, index]$treatment[[1]], Y = read_data[, index]$result[[1]])
+#   nof1_out <- with(data_out, {
+#     nof1.data(Y, Treat, response = response_type)
+#   })
+#
+#   if (graph == "time_series_plot") {
+#     time_series_plot(nof1_out)
+#   } else if (graph == "frequency_plot") {
+#     frequency_plot(nof1_out, xlab, title)
+#   } else if (graph == "stacked_percent_barplot") {
+#     stacked_percent_barplot(nof1_out, title)
+#   } else if (graph == "raw_table") {
+#     raw_table(nof1_out)
+#   } else {"Not a viable graph or table"}
+# }
 
 result_graphs <- function(graph, dataset, kern_index, title = NULL, result.name = NULL) {
   data = dataset$data
