@@ -3,7 +3,7 @@ Title: Analyzes N-Of-1 clinical trials
 Version: 0.0.0.9000
 Authors@R: person("Aris", "Paschalidis", email = "aris.paschalidis@gmail.com",
     role = c("aut", "cre"))
-URL: http://github.com/arisp99/gen_nof1
+URL: http://github.com/arisp99/nof1gen
 Description: A package for running analysis for N of 1 study trials. 
     Runs Bayesian linear regression, ordinal/logistic regression, and poisson regression.
     Includes different plots to visualize the results and raw data.
