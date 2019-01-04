@@ -17,13 +17,13 @@
 
 # This function essentially reads in the data and changes the data that was
 # entered binomially to contain only 0 and 1.
-formated_read_input <- function(data, response_type) {
+formated_read_input <- function(data, metadata) {
 
   outcome_names <- names(data)
   output <- data
   # chaning binomials to 0, 1
   for (i in 1:length(outcome_names)) {
-    if (response_type == "binomial") {
+    if (metadata[[length(metadata) - length(outcome_names) + i]] == "binomial") {
       fixed <- unlist(data[, i]$result)
       if (all(fixed %in% c(0, 1, NA))) {
         output[[outcome_names[i]]]$result = list(fixed)
@@ -58,7 +58,7 @@ washout <- function(read_data, metadata) {
     change_point <- change_point[-length(change_point)]
 
     # we only change weekly results and daily results, more than weekly does not make
-    # much sense as enough time would have passed so that the previous #treatment
+    # much sense as enough time would have passed so that the previous treatment
     # would not make a difference anymore NB: at some point, may want to account for
     # different frequencies, ie. multiple time a day
     delete_obs_daily <- NULL
@@ -306,13 +306,13 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha = 0.025) {
 #' \item{data}{This the the data file that was constructed using \code{nof1.data}}
 #' \item{samples}{This is the result of \code{nof1.run}. It is the result of the simulation}
 #' @export
-wrap_all <- function(dataset, response_list) {
+wrap_all <- function(dataset, response_list, washout = TRUE) {
   data = dataset$data
   metadata = dataset$metadata
 
   # getting our data read and formated
   read_data <- tryCatch({
-    read_dummy <- formated_read_input(data, response_type)
+    read_dummy <- formated_read_input(data, metadata)
     if (!washout) {
       read_dummy
     } else {
@@ -383,7 +383,7 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE) {
 
   # getting our data read and formated
   read_data <- tryCatch({
-    read_dummy <- formated_read_input(data, response_type)
+    read_dummy <- formated_read_input(data, metadata)
     if (!washout) {
       read_dummy
     } else {
