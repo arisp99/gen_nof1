@@ -155,8 +155,8 @@ inv_logit <- function(a) {
 #'
 #' A neat function to summarize the results.
 #'
-#' @param nof1 The data file created by \code{nof1.data}.
-#' @param result The result file created by \code{nof1.run}
+#' @param model_results A list which contains data file created
+#' by \code{nof1.data} and the result file created by \code{nof1.run}
 #' @param nof_treat The number of different treatments.
 #' @param alpha The alpha value for the confidence interval. If no value is
 #' entered will give the 95\% confidence interval.
@@ -182,7 +182,9 @@ inv_logit <- function(a) {
 # treatmentA=alpha+beta_A, treatmentB=alpha+beta_B, etc. Function returns: input
 # mean and median, mean and median for the treatments, mean and median for the
 # coefs, P(treatment>0), P(coef>0), CI(alpha=0.5) for treatment and coef.
-summarize_nof1 <- function(nof1, result, nof_treat, alpha = 0.025) {
+summarize_nof1 <- function(model_results, nof_treat, alpha = 0.025) {
+  nof1 <- model_results[[2]][[1]]
+  result <- model_results[[2]][[2]]
 
   with(c(nof1, result), {
 
@@ -340,8 +342,9 @@ summarize_all_nof1 <- function(data_result_list, nof_treat, alpha = 0.025) {
 #' \item{design}{How the study was designed. How many weeks of treatment A? Of
 #'  treatment B?}
 #' \item{nof_treat}{The number of different treatments that were admininstered}
-#' \item{data}{This the the data file that was constructed using \code{nof1.data}}
-#' \item{samples}{This is the result of \code{nof1.run}. It is the result of the simulation}
+#' \item{model_results}{This is a list which contains the data file that was
+#' constructed using \code{nof1.data} and the result file which was created
+#' with \code{nof1.run}}
 #' @export
 wrap_all <- function(dataset, response_list, washout = TRUE) {
   data = dataset$data
@@ -404,15 +407,16 @@ wrap_all <- function(dataset, response_list, washout = TRUE) {
 #' @param result_type The type of model to run. Options are: normal,
 #' binomial, poisson, or ordinal.
 #' @return The function returns some useful information about the simulation
-#'  as well as information about the simulation.
+#' as well as information about the simulation.
 #' \item{system_info}{Provides information about the clincical trial conducted}
 #' \item{user_id}{The user id for the particular patient whose data was analyzed}
 #' \item{trigger}{The trigger the study was examining}
 #' \item{design}{How the study was designed. How many weeks of treatment A? Of
 #'  treatment B?}
 #' \item{nof_treat}{The number of different treatments that were admininstered}
-#' \item{data}{This the the data file that was constructed using \code{nof1.data}}
-#' \item{samples}{This is the result of \code{nof1.run}. It is the result of the simulation}
+#' \item{model_results}{This is a list which contains the data file that was
+#' constructed using \code{nof1.data} and the result file which was created
+#' with \code{nof1.run}}
 #'
 #' @export
 wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE) {
@@ -459,7 +463,7 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE) {
                       design = metadata$design, nof_treat = nof_treat, timestap_completion = Sys.time())
 
   # in final output, print system_info, the data file, and result file
-  final <- list(system_info = system_info, data = result[[1]], samples = result[[2]])
+  final <- list(system_info = system_info, model_results = result)
 
   return(final)
 }
