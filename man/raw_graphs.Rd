@@ -4,18 +4,24 @@
 \alias{raw_graphs}
 \title{Raw Graphs and Tables}
 \usage{
-raw_graphs(graph, dataset, index, time = NULL, timestamp = NULL,
-  xlab = NULL, title = NULL)
+raw_graphs(graph, model_result, multiple = FALSE, outcome_name = NULL,
+  time = NULL, timestamp = NULL, xlab = NULL, title = NULL)
 }
 \arguments{
-\item{graph}{(str) the specific table or graph to construct. Options include:
-time_series_plot, frequency_plot, stacked_percent_barplot, and raw_table.}
+\item{graph}{A string which specifies the specific table or graph to construct.
+Options include: time_series_plot, frequency_plot, stacked_percent_barplot, and raw_table.}
 
-\item{dataset}{the dataset used to create the table or graph}
+\item{model_result}{The analysis we want to make the graphs for. It is
+the output of \code{wrap_single}}
 
-\item{index}{(int) the outcome index in the dataset}
+\item{multiple}{A boolean that indicates if the \code{model_result} input has multiple
+possible outcome. In other words, was \code{model_result} input created \code{\link{from wrap_all}}
+or \code{\link{wrap_single}}? The default is FALSE meaning we only have one outcome in the
+\code{model_result} input.}
 
-\item{...}{specific paramaters depending on table or graph to constuct}
+\item{outcome_name}{A string that indicates the name of the outcome we wish to graph}
+
+\item{...}{Specific paramaters depending on table or graph to constuct}
 }
 \description{
 \code{raw_graphs} allows the user to create a specific table or graph
@@ -23,6 +29,6 @@ for an outcome. Possible graphs include: time_series_plot, frequency_plot,
 stacked_percent_barplot, and raw_table.
 }
 \examples{
-make_raw_graphs("raw_table", diet_form, 1, title = "Daily Stool Consistency")
-make_raw_graphs("stacked_percent_barplot", diet_form, 1, title = "Daily Stool Consistency")
+raw_graphs("raw_table", all_result_afib, TRUE, "afib_episode_yn")
+raw_graphs("frequency_plot", result_afib)
 }
