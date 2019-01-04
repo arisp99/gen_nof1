@@ -288,6 +288,43 @@ summarize_nof1 <- function(nof1, result, nof_treat, alpha = 0.025) {
   })
 }
 
+#' Function to present a summary of our results
+#'
+#' A neat function to summarize the results when we run a simulation for each outcome
+#'
+#' @param data_result_list A list of data files and result files. This is the
+#' output of \code{wrap_all}
+#' @param nof_treat The number of different treatments.
+#' @param alpha The alpha value for the confidence interval. If no value is
+#' entered will give the 95\% confidence interval.
+#' @return The function returns some useful information about the simulation. It
+#' returns the following for each outcome.
+#' \item{input_mean}{The mean of the data inputed}
+#' \item{input_median}{The median of the data inputed}
+#' \item{treat_mean}{The mean of the data outputed for each treatment type}
+#' \item{treat_median}{The median of the data outputed for each treatment type}
+#' \item{coef_mean}{The mean of the data outputed for each coefficient}
+#' \item{coef_median}{The median of the data outputed for each coefficient}
+#' \item{treat_greater_zero}{The probability that the output value is greater
+#'  than zero for each treatment type}
+#' \item{coef_greater_zero}{The probability that the output value is greater
+#'  than zero for each coefficient}
+#' \item{treat_confidence}{The confidence interval of the input data
+#' set of the output value for each treatment type}
+#' \item{coef_confidence}{The confidence interval of the input data set
+#' of the output value for each coefficient}
+#' @export
+summarize_all_nof1 <- function(data_result_list, nof_treat, alpha = 0.025) {
+  summary_list <- vector("list", length = length(data_result_list[[2]]))
+  for (i in 1:length(data_result_list[[2]])) {
+    summary_list[[i]] <- summarize_nof1(data_result_list[[2]][[i]][[1]],
+                                       data_result_list[[2]][[i]][[2]], nof_treat, alpha)
+  }
+  names(summary_list) <- names(data_result_list[[2]])
+
+  return(summary_list)
+}
+
 #' Function to run the analysis on all outcomes
 #'
 #' \code{wrap_all} allows the user to run an anaylsis on a specific data set.
@@ -353,6 +390,7 @@ wrap_all <- function(dataset, response_list, washout = TRUE) {
 
   final <- list(system_info = system_info, model_results = returns)
 
+  # str(returns)
   return(final)
 }
 
