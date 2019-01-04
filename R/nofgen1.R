@@ -15,9 +15,7 @@
 #' For each observation, we will have a list of the treatment the patient was on
 #' at the time followed by a list of all the data points collected. These two lists
 #' should be the same length. The metadata section will then contain the user_id,
-#' the trigger, the design of the trial, whether or not a washout period will be used
-#' (if not an argument in the metadata section, the default is TRUE), the alpha value
-#' for the confidence interval, the start and end date (YYYY-MM-DD), followed by the
+#' the trigger, the design of the trial, the start and end date (YYYY-MM-DD), followed by the
 #' response type of each of the observations. Either normal, ordina, binomial, or poisson.
 #' The response types must be in the same order as the observations in the data section
 #' and must be the last pieces of information in the metadata section. Refer to the
@@ -29,6 +27,8 @@ NULL
 
 #' @import coda
 #' @import ggplot2
+#' @import jsonlite
 #' @import MASS
+#' @import rjags
 #' @import scales
 NULL
