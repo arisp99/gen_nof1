@@ -42,12 +42,12 @@ Once we run the simulations, we can then summarize them to get some basic inform
 
 ```{r}
 # Use the summarize_nof1 function to summarize the simulations
-output_afib <- summarize_nof1(result_afib[[2]], result_afib[[3]], 2)
-output_afib_var <- summarize_nof1(result_afib_var[[2]], result_afib_var[[3]], 2)
-output_diet <- summarize_nof1(result_diet[[2]], result_diet[[3]], 3)
-output_diet_small <- summarize_nof1(result_diet_small[[2]], result_diet_small[[3]], 3)
-output_no_mscd <- summarize_nof1(result_no_mscd[[2]], result_no_mscd[[3]], 2)
-output_no_scd <- summarize_nof1(result_no_scd[[2]], result_no_scd[[3]], 2)
+output_afib <- summarize_nof1(result_afib, 2)
+output_afib_var <- summarize_nof1(result_afib_var, 2)
+output_diet <- summarize_nof1(result_diet, 3)
+output_diet_small <- summarize_nof1(result_diet_small, 3)
+output_no_mscd <- summarize_nof1(result_no_mscd, 2)
+output_no_scd <- summarize_nof1(result_no_scd, 2)
 
 # We can then output the above to a .json format
 output_afib <-
