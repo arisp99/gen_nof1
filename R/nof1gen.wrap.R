@@ -88,10 +88,11 @@ washout <- function(read_data, metadata) {
   num_weeks <- date_diff/7
 
   # loop over the number of different observations we have
-  for (i in 1:length(change_point)) {
+  for (i in 1:length(read_data)) {
     vec_treat <- unlist(read_data[[i]]$treatment)
     change_point <- cumsum(rle(vec_treat)$lengths)
     change_point <- change_point[-length(change_point)]
+    # change point now gives us the number of points for the treatments (minus the last one)
 
     # we only change weekly results and daily results, more than weekly does not make
     # much sense as enough time would have passed so that the previous treatment
