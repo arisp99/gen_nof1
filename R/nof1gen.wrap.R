@@ -17,24 +17,60 @@
 
 # This function essentially reads in the data and changes the data that was
 # entered binomially to contain only 0 and 1.
-formated_read_input <- function(data, metadata) {
+# formated_read_input <- function(data, metadata) {
+#
+#   outcome_names <- names(data)
+#   output <- data
+#   # chaning binomials to 0, 1
+#   for (i in 1:length(outcome_names)) {
+#     if (metadata[[length(metadata) - length(outcome_names) + i]] == "binomial") {
+#       fixed <- unlist(data[, i]$result)
+#       if (all(fixed %in% c(0, 1, NA))) {
+#         output[[outcome_names[i]]]$result = list(fixed)
+#       } else {
+#         max <- max(fixed, na.rm = TRUE)
+#         fixed <- ifelse(max > fixed & (!is.nan(fixed)), 0, 1)
+#         output[[outcome_names[i]]]$result = list(fixed)
+#       }
+#     }
+#   }
+#   output
+# }
 
-  outcome_names <- names(data)
+# Reading in the data and changing binomials to 0 and 1
+formated_read_input <- function(data, response_type) {
   output <- data
-  # chaning binomials to 0, 1
-  for (i in 1:length(outcome_names)) {
-    if (metadata[[length(metadata) - length(outcome_names) + i]] == "binomial") {
-      fixed <- unlist(data[, i]$result)
+  if (length(response_type) != 1){
+    outcome_names <- names(data)
+    # chaning binomials to 0, 1
+    for (i in 1:length(outcome_names)) {
+      if (response_type[i] == "binomial") {
+        fixed <- unlist(data[, i]$result)
+        if (all(fixed %in% c(0, 1, NA))) {
+          output[[outcome_names[i]]]$result = list(fixed)
+        } else {
+          max <- max(fixed, na.rm = TRUE)
+          fixed <- ifelse(max > fixed & (!is.nan(fixed)), 0, 1)
+          output[[outcome_names[i]]]$result = list(fixed)
+        }
+      }
+    }
+    output
+  } else{
+    output <- data
+    # chaning binomials to 0, 1
+    if (response_type == "binomial") {
+      fixed <- unlist(data$result)
       if (all(fixed %in% c(0, 1, NA))) {
-        output[[outcome_names[i]]]$result = list(fixed)
+        output$result = list(fixed)
       } else {
         max <- max(fixed, na.rm = TRUE)
         fixed <- ifelse(max > fixed & (!is.nan(fixed)), 0, 1)
-        output[[outcome_names[i]]]$result = list(fixed)
+        output$result = list(fixed)
       }
     }
   }
-  output
+  return(output)
 }
 
 # Washout function. in some cases when we switch from A to B, for example, the
@@ -352,7 +388,7 @@ wrap_all <- function(dataset, response_list, washout = TRUE) {
 
   # getting our data read and formated
   read_data <- tryCatch({
-    read_dummy <- formated_read_input(data, metadata)
+    read_dummy <- formated_read_input(data, response_list)
     if (!washout) {
       read_dummy
     } else {
@@ -420,12 +456,12 @@ wrap_all <- function(dataset, response_list, washout = TRUE) {
 #'
 #' @export
 wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE) {
-  data = dataset$data
+  data = dataset$data[[as.name(outcome_name)]]
   metadata = dataset$metadata
 
   # getting our data read and formated
   read_data <- tryCatch({
-    read_dummy <- formated_read_input(data, metadata)
+    read_dummy <- formated_read_input(data, response_type)
     if (!washout) {
       read_dummy
     } else {
@@ -449,7 +485,7 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE) {
   }
 
   # running our algorithm
-  result <- wrap_helper(read_data[[as.name(outcome_name)]], response_type)
+  result <- wrap_helper(read_data, response_type)
 
   # checking that the number of treatments is correct for each observation
   # correct_treat <- check_nof_treatments(read_data[[as.name(outcome_name)]]$treatment,
