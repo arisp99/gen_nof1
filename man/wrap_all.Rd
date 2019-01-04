@@ -21,8 +21,9 @@ The function returns some useful information about the simulation
 \item{design}{How the study was designed. How many weeks of treatment A? Of
  treatment B?}
 \item{nof_treat}{The number of different treatments that were admininstered}
-\item{data}{This the the data file that was constructed using \code{nof1.data}}
-\item{samples}{This is the result of \code{nof1.run}. It is the result of the simulation}
+\item{model_results}{This is a list which contains the data file that was
+constructed using \code{nof1.data} and the result file which was created
+with \code{nof1.run}}
 }
 \description{
 \code{wrap_all} allows the user to run an anaylsis on a specific data set.

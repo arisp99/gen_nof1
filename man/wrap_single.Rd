@@ -16,15 +16,16 @@ binomial, poisson, or ordinal.}
 }
 \value{
 The function returns some useful information about the simulation
- as well as information about the simulation.
+as well as information about the simulation.
 \item{system_info}{Provides information about the clincical trial conducted}
 \item{user_id}{The user id for the particular patient whose data was analyzed}
 \item{trigger}{The trigger the study was examining}
 \item{design}{How the study was designed. How many weeks of treatment A? Of
  treatment B?}
 \item{nof_treat}{The number of different treatments that were admininstered}
-\item{data}{This the the data file that was constructed using \code{nof1.data}}
-\item{samples}{This is the result of \code{nof1.run}. It is the result of the simulation}
+\item{model_results}{This is a list which contains the data file that was
+constructed using \code{nof1.data} and the result file which was created
+with \code{nof1.run}}
 }
 \description{
 \code{wrap_single} allows the user to run an anaylsis

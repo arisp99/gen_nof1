@@ -4,12 +4,11 @@
 \alias{summarize_nof1}
 \title{Function to present a summary of our results}
 \usage{
-summarize_nof1(nof1, result, nof_treat, alpha = 0.025)
+summarize_nof1(model_results, nof_treat, alpha = 0.025)
 }
 \arguments{
-\item{nof1}{The data file created by \code{nof1.data}.}
-
-\item{result}{The result file created by \code{nof1.run}}
+\item{model_results}{A list which contains data file created
+by \code{nof1.data} and the result file created by \code{nof1.run}}
 
 \item{nof_treat}{The number of different treatments.}
 
