@@ -4,7 +4,7 @@
 \alias{wrap_single}
 \title{Function to run the analysis on a single outcome}
 \usage{
-wrap_single(dataset, outcome_name, response_type)
+wrap_single(dataset, outcome_name, response_type, washout = TRUE)
 }
 \arguments{
 \item{dataset}{The dataset the analysis will be conducted on.}

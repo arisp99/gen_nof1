@@ -4,7 +4,7 @@
 \alias{wrap_all}
 \title{Function to run the analysis on all outcomes}
 \usage{
-wrap_all(dataset, response_list)
+wrap_all(dataset, response_list, washout = TRUE)
 }
 \arguments{
 \item{dataset}{The dataset the analysis will be conducted on.}

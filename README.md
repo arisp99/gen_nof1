@@ -26,6 +26,14 @@ result_diet       <- wrap_single(diet_form, "daily_stool_consistency", "binomial
 result_diet_small <- wrap_single(diet_form_small, "daily_stool_frequency", "poisson", FALSE)
 result_no_mscd    <- wrap_single(no_mscd_form, "promis_pain_interference", "normal", FALSE)
 result_no_scd     <- wrap_single(no_scd_form, "promis_gi_symptoms", "normal", FALSE)
+
+# Use the function wrap_all to run the model for each outcome
+all_result_afib       <- wrap_all(afib_form, list("binomial"), FALSE)
+all_result_afib_var   <- wrap_all(afib_form_no_var, list("binomial"), FALSE)
+all_result_diet       <- wrap_all(diet_form, list("binomial", "poisson", "normal", "normal"), FALSE)
+all_result_diet_small <- wrap_all(diet_form_small, list("binomial", "poisson", "normal", "normal"), FALSE)
+all_result_no_mscd    <- wrap_all(no_mscd_form, list("binomial", "poisson", "normal", "normal"), FALSE)
+all_result_no_scd     <- wrap_all(no_scd_form, list("binomial", "poisson", "normal", "normal"), FALSE)
 ```
 
 # Summarizing the simulations
@@ -43,17 +51,39 @@ output_no_scd <- summarize_nof1(result_no_scd[[2]], result_no_scd[[3]], 2)
 
 # We can then output the above to a .json format
 output_afib <-
-  toJSON(result_afib, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+  toJSON(output_afib, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 output_afib_var <-
-  toJSON(result_afib_var, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+  toJSON(output_afib_var, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 output_diet <-
-  toJSON(result_diet, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+  toJSON(output_diet, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 output_diet_small <-
-  toJSON(result_diet, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+  toJSON(output_diet_small, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 output_no_mscd <-
-  toJSON(result_no_mscd, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+  toJSON(output_no_mscd, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 output_no_scd <-
-  toJSON(result_no_scd, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+  toJSON(output_no_scd, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+
+# Use the summarize_all_nof1 function to summarize the the cases where we ran a model for each outcome
+all_output_afib <- summarize_all_nof1(all_result_afib, 2)
+all_output_afib_var <- summarize_all_nof1(all_result_afib_var, 2)
+all_output_diet <- summarize_all_nof1(all_result_diet, 3)
+all_output_diet_small <- summarize_all_nof1(all_result_diet_small, 3)
+all_output_no_mscd <- summarize_all_nof1(all_result_no_mscd, 2)
+all_output_no_scd <- summarize_all_nof1(all_result_no_scd, 2)
+
+# We can then output the above to a .json format
+output_afib <-
+  toJSON(all_output_afib, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+output_afib_var <-
+  toJSON(all_output_afib_var, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+output_diet <-
+  toJSON(all_output_diet, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+output_diet_small <-
+  toJSON(all_output_diet_small, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+output_no_mscd <-
+  toJSON(all_output_no_mscd, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
+output_no_scd <-
+  toJSON(all_output_no_scd, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 ```
 
 # Creating graphs and tables to visualze data
