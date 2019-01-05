@@ -92,9 +92,9 @@ Graphs can also be used to analyze the data. There are several graphs that can b
 
 ```{r}
 # Use the function make_raw_graphs to creat the graphs
-raw_graphs("time_series_plot", diet_form, 1) #N.B. time_series_plot only works for ordinal data as of now. It may also be able to eventaully work for binomial data.
-raw_graphs("frequency_plot", diet_form, 2)
-raw_graphs("stacked_percent_barplot", diet_form, 1)
-raw_graphs("raw_table", diet_form, 2)
+# raw_graphs("time_series_plot", result_diet_small) # time series does not work as of now
+raw_graphs("frequency_plot", result_afib)
+raw_graphs("stacked_percent_barplot", all_result_diet_small, TRUE, "daily_stool_consistency")
+raw_graphs("raw_table", all_result_afib, TRUE, "afib_episode_yn")
 ```
 
