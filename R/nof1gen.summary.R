@@ -37,7 +37,6 @@ time_series_plot <- function(nof1, time = NULL, timestamp = NULL, timestamp.form
 }
 
 
-
 #' Frequency plot for raw data
 #'
 #' @param nof1 nof1 object created using nof1.data
@@ -241,8 +240,9 @@ probability_barplot <- function(result.list, result.name = NULL) {
 #' raw_graphs("raw_table", all_result_afib, TRUE, "afib_episode_yn")
 #' raw_graphs("frequency_plot", result_afib)
 #' @export
-raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NULL, time = NULL,
-                        timestamp = NULL, xlab = NULL, title = NULL) {
+raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NULL,
+                       time = NULL, timestamp = NULL, timestamp.format = "%m-%d-%Y",
+                       xlab = NULL, title = NULL) {
 
   if (!multiple) {
     nof1_out <- model_result[[2]][[1]]
@@ -257,7 +257,7 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
   }
 
   if (graph == "time_series_plot") {
-    time_series_plot(nof1_out)
+    time_series_plot(nof1_out, time = time, timestamp = timestamp, timestamp.format)
   } else if (graph == "frequency_plot") {
     frequency_plot(nof1_out, xlab, title)
   } else if (graph == "stacked_percent_barplot") {
