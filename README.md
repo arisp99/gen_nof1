@@ -2,7 +2,7 @@
 
 This repo is a based of another repo by MikeJSeo, which introduces a nof1 package that can be used to analyze nof1 studies. The goal in this repo is to take the package that was created and generalize it to work for any nof1 study.
 
-# To Install and Load the original nof1 package
+# To Install and load the package
 
 ```{r}
 install.packages("devtools")
