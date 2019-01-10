@@ -523,15 +523,15 @@ wrap_helper <- function(specific_data, response_type) {
   return(list(nof1_out, result_out))
 }
 
-# Helper function for our wrap function. Creates the neccesary objects needed to
+# Old Helper function for our wrap function. Creates the neccesary objects needed to
 # run the nof1 algorithim, runs the algorithim, and then summarizes the result.
-wrap_helper2 <- function(specific_data, response_type, nof_treat) {
-    data_out <- list(Treat = specific_data$treatment[[1]], Y = specific_data$result[[1]])
-    nof1_out <- with(data_out, {
-      nof1.data(Y, Treat, response = response_type)
-    })
-    result_out <- nof1.run(nof1_out)
-    print(str(nof1_out))
-    print(str(result_out))
-    summarize_nof1(nof1_out, result_out, nof_treat)
-}
+# wrap_helper2 <- function(specific_data, response_type, nof_treat) {
+#     data_out <- list(Treat = specific_data$treatment[[1]], Y = specific_data$result[[1]])
+#     nof1_out <- with(data_out, {
+#       nof1.data(Y, Treat, response = response_type)
+#     })
+#     result_out <- nof1.run(nof1_out)
+#     print(str(nof1_out))
+#     print(str(result_out))
+#     summarize_nof1(nof1_out, result_out, nof_treat)
+# }
