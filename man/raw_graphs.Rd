@@ -5,7 +5,8 @@
 \title{Raw Graphs and Tables}
 \usage{
 raw_graphs(graph, model_result, multiple = FALSE, outcome_name = NULL,
-  time = NULL, timestamp = NULL, xlab = NULL, title = NULL)
+  time = NULL, timestamp = NULL, timestamp.format = "\%m-\%d-\%Y",
+  xlab = NULL, title = NULL)
 }
 \arguments{
 \item{graph}{A string which specifies the specific table or graph to construct.
