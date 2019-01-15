@@ -1,22 +1,3 @@
-# Input File Format: The file has two parts, the data section and the metadata
-# section. The data section will contain all the observations taken during the
-# trial. For each observation, we will have a list of the treatment the patient
-# was on at the time followed by a list of all the data points collected. These
-# two lists should be the same length. The metadata section will then contain the
-# user_id, the trigger, the design of the trial, whether or not a washout period
-# will be used (if not in metadata, default is TRUE), the alpha value for the
-# confidence interval, the start and end date (YYYY-MM-DD), followed by the
-# response type of each of the observations. Either binomial, poisson, or normal.
-# The response types must be in the same order as the observations in the data
-# section and must be the last pieces of information in the metadata section.
-
-# To read in a data set, as a .json file use the fromJSON command. ex: json.file
-# <- fromJSON('NAME-OF-FILE.json')
-
-# Some packages needed for file to run library(nof1) library(jsonlite)
-
-# This function essentially reads in the data and changes the data that was
-# entered binomially to contain only 0 and 1.
 # formated_read_input <- function(data, metadata) {
 #
 #   outcome_names <- names(data)
@@ -37,7 +18,17 @@
 #   output
 # }
 
-# Reading in the data and changing binomials to 0 and 1
+#' Function to read in the data
+#'
+#' A function that allows us to read in the data and fix any binomial
+#' inputs to be 0 and 1.
+#'
+#' @param data The data file we want to format. This is simply a data frame with
+#' outcomes. We can input either a single outcome or multiple outcomes. The outcomes
+#' each have a treatment and a result vector.
+#' @param response_type The response type of the data. Can be a list of strings
+#' if we have several outcomes to examine or a single string.
+#' @return The function returns the formated data.
 formated_read_input <- function(data, response_type) {
   output <- data
   if (length(response_type) != 1){
@@ -73,6 +64,17 @@ formated_read_input <- function(data, response_type) {
   return(output)
 }
 
+#' Washout function
+#'
+#' Allows the user to implement a washout period in the dataset. To do this,
+#' the function calculates the length of the trial and then will replace some of
+#' the original values with NULL with a different frequency depending on how often
+#' the data was collected.
+#'
+#' @param read_data The data we want to apply a washout out
+#' @param metadata The metadata section of a file. This is important as it contains
+#' information about the length of the trial.
+#' @return The function returns the data with a washout period implemented.
 # Washout function. in some cases when we switch from A to B, for example, the
 # first couple data points in B could be corrupted because the effects of A are
 # still there. Thus we ingore the first couple data points (set them to NA).
