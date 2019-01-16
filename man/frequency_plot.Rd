@@ -4,7 +4,7 @@
 \alias{frequency_plot}
 \title{Frequency plot for raw data}
 \usage{
-frequency_plot(nof1, xlab = NULL, title = NULL)
+frequency_plot(nof1, xlab = "Outcomes", title = NULL, bins = 10)
 }
 \arguments{
 \item{nof1}{nof1 object created using nof1.data}
@@ -12,6 +12,8 @@ frequency_plot(nof1, xlab = NULL, title = NULL)
 \item{xlab}{x axis label}
 
 \item{title}{title name}
+
+\item{bins}{number of bins. To be used for continuous data}
 }
 \description{
 Frequency plot for raw data
