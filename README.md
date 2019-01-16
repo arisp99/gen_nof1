@@ -42,12 +42,12 @@ Once we run the simulations, we can then summarize them to get some basic inform
 
 ```{r}
 # Use the summarize_nof1 function to summarize the simulations
-output_afib <- summarize_nof1(result_afib, 2)
-output_afib_var <- summarize_nof1(result_afib_var, 2)
-output_diet <- summarize_nof1(result_diet, 3)
-output_diet_small <- summarize_nof1(result_diet_small, 3)
-output_no_mscd <- summarize_nof1(result_no_mscd, 2)
-output_no_scd <- summarize_nof1(result_no_scd, 2)
+output_afib <- summarize_nof1(result_afib[[2]], 2)
+output_afib_var <- summarize_nof1(result_afib_var[[2]], 2)
+output_diet <- summarize_nof1(result_diet[[2]], 3)
+output_diet_small <- summarize_nof1(result_diet_small[[2]], 3)
+output_no_mscd <- summarize_nof1(result_no_mscd[[2]], 2)
+output_no_scd <- summarize_nof1(result_no_scd[[2]], 2)
 
 # We can then output the above to a .json format
 output_afib <-
@@ -72,17 +72,17 @@ all_output_no_mscd <- summarize_all_nof1(all_result_no_mscd, 2)
 all_output_no_scd <- summarize_all_nof1(all_result_no_scd, 2)
 
 # We can then output the above to a .json format
-output_afib <-
+all_output_afib <-
   toJSON(all_output_afib, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
-output_afib_var <-
+all_output_afib_var <-
   toJSON(all_output_afib_var, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
-output_diet <-
+all_output_diet <-
   toJSON(all_output_diet, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
-output_diet_small <-
+all_output_diet_small <-
   toJSON(all_output_diet_small, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
-output_no_mscd <-
+all_output_no_mscd <-
   toJSON(all_output_no_mscd, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
-output_no_scd <-
+all_output_no_scd <-
   toJSON(all_output_no_scd, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 ```
 

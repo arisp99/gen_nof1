@@ -222,8 +222,8 @@ inv_logit <- function(a) {
 # mean and median, mean and median for the treatments, mean and median for the
 # coefs, P(treatment>0), P(coef>0), CI(alpha=0.5) for treatment and coef.
 summarize_nof1 <- function(model_results, nof_treat, alpha = 0.025) {
-  nof1 <- model_results[[2]][[1]]
-  result <- model_results[[2]][[2]]
+  nof1 <- model_results[[1]]
+  result <- model_results[[2]]
 
   with(c(nof1, result), {
 
@@ -358,8 +358,7 @@ summarize_nof1 <- function(model_results, nof_treat, alpha = 0.025) {
 summarize_all_nof1 <- function(data_result_list, nof_treat, alpha = 0.025) {
   summary_list <- vector("list", length = length(data_result_list[[2]]))
   for (i in 1:length(data_result_list[[2]])) {
-    summary_list[[i]] <- summarize_nof1(data_result_list[[2]][[i]][[1]],
-                                       data_result_list[[2]][[i]][[2]], nof_treat, alpha)
+    summary_list[[i]] <- summarize_nof1(data_result_list[[2]][[i]], nof_treat, alpha)
   }
   names(summary_list) <- names(data_result_list[[2]])
 
