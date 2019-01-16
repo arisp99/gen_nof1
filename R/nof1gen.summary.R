@@ -17,25 +17,31 @@
 # ordinal.
 time_series_plot <- function(nof1, time = NULL, timestamp = NULL, timestamp.format = "%m/%d/%Y %H:%M",
   Outcome.name = "") {
+  if (nof1$response %in% c("normal", "poisson")){
+    data <- data.frame(Y = nof1$Y, datum = 1:length(nof1$Treat), Treatment = nof1$Treat)
+    ggplot(data, aes(x = datum, Y, color = Treatment)) + geom_point(na.rm = TRUE) + geom_path(na.rm = TRUE) + theme_bw() +
+      scale_x_continuous(breaks=cumsum(rle(nof1$Treat)$lengths), labels = c("baseline", "A", "B"))
+  }
+  else{
+    date <- as.Date(timestamp, timestamp.format)
 
-  date <- as.Date(timestamp, timestamp.format)
+    data <- data.frame(Y = as.numeric(nof1$Y), Treatment = gsub("\\_", " ", nof1$Treat),
+      date = date)
+    data2 <- aggregate(nof1$Y, list(Treatment = gsub("\\_", " ", nof1$Treat)), mean)
 
-  data <- data.frame(Y = as.numeric(nof1$Y), Treatment = gsub("\\_", " ", nof1$Treat),
-    date = date)
-  data2 <- aggregate(nof1$Y, list(Treatment = gsub("\\_", " ", nof1$Treat)), mean)
-
-  ggplot(data,
-    aes(x = date, Y, fill = Treatment)) +
-    geom_bar(stat = "identity", na.rm = TRUE) + # use y-values for the height of the bar
-    facet_grid(. ~ Treatment) + # form panels for each treatment
-    theme_bw() + # makes theme black and white
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
-    labs(x = "Date", y = Outcome.name) +
-    geom_hline(data = data2, aes(yintercept = x, linetype = "Mean"), color = "black") + # adds horizontal line in the data
-    scale_y_continuous(breaks = 0:nof1$ncat, oob = rescale_none, label = c("Low", rep("", length = nof1$ncat - 1), "High")) +
-    # above adds in the lines on the y-axis and the low and high notation
-    scale_fill_manual(values = c("#adc2eb", "#ffb380")) +
-    scale_linetype_manual(name = "", values = 1, guide = guide_legend(override.aes = list(color = c("black"))))
+    ggplot(data,
+      aes(x = date, Y, fill = Treatment)) +
+      geom_bar(stat = "identity", na.rm = TRUE) + # use y-values for the height of the bar
+      facet_grid(. ~ Treatment) + # form panels for each treatment
+      theme_bw() + # makes theme black and white
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+      labs(x = "Date", y = Outcome.name) +
+      geom_hline(data = data2, aes(yintercept = x, linetype = "Mean"), color = "black") + # adds horizontal line in the data
+      scale_y_continuous(breaks = 0:nof1$ncat, oob = rescale_none, label = c("Low", rep("", length = nof1$ncat - 1), "High")) +
+      # above adds in the lines on the y-axis and the low and high notation
+      scale_fill_manual(values = c("#adc2eb", "#ffb380")) +
+      scale_linetype_manual(name = "", values = 1, guide = guide_legend(override.aes = list(color = c("black"))))
+  }
 }
 
 #' Frequency plot for raw data
@@ -55,21 +61,21 @@ frequency_plot <- function(nof1, xlab = "Outcomes", title = NULL, bins = 10) {
   if (nof1$response %in% c("binomial")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
     ggplot(data = data, aes(x = factor(Y, levels = 0:1), y = x, fill = Treat)) + geom_bar(stat = "identity",
-      position = "dodge", width = 0.8, na.rm = TRUE) + labs(title = title,
-      x = xlab, y = "Frequency", fill = "Treatment") +
+      position = "dodge", width = 0.8, na.rm = TRUE, alpha = 0.9) + labs(title = title,
+      x = xlab, y = "Count", fill = "Treatment") + scale_x_discrete(labels = c("Low", "High")) +
       theme_bw()
   } else if (nof1$response %in% c("ordinal")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
     ggplot(data = data, aes(x = Y, y = x, fill = Treat)) + geom_bar(stat = "identity",
-      position = "dodge", na.rm = TRUE) + labs(title = title, x = xlab, y = "Frequency",
+      position = "dodge", na.rm = TRUE) + labs(title = title, x = xlab, y = "Count",
       fill = "Outcomes") + xlim(0.5, nof1$ncat + 0.5) + theme_bw()
   } else if (nof1$response %in% c("normal", "poisson")) {
     data <- data.frame(Y = nof1$Y, Treatment = nof1$Treat)
     ggplot(data, aes(x = Y, fill = Treatment, color = Treatment)) +
       # position dodge puts them next to each other, na.rm gets rid of NA data,
       # bins is, alpha is how see through the colors are
-      geom_histogram(position = "dodge", na.rm = TRUE, bins = bins, alpha = 0.7) +
-      labs(title = title, x = xlab, y = "Frequency") +
+      geom_histogram(position = "dodge", na.rm = TRUE, bins = bins, alpha = 0.9) +
+      labs(title = title, x = xlab, y = "Count") +
       theme_bw()
   }
 }
@@ -87,10 +93,10 @@ stacked_percent_barplot <- function(nof1, title = NULL) {
 
   if (nof1$response %in% c("binomial")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
-    ggplot(data, aes(fill = factor(Y, levels = 0:1), y = x, x = Treat)) + geom_bar(stat = "identity",
+    ggplot(data, aes(fill = factor(Y, levels = 0:1, labels = c("Low", "High")), y = x, x = Treat)) + geom_bar(stat = "identity",
       position = "fill", na.rm = TRUE) + scale_y_continuous(labels = percent_format()) +
       theme_bw() + labs(title = title, x = "Treatment", y = "Percentage", fill = "Outcomes") +
-      scale_fill_manual(values = c("purple", "orange"))
+      scale_fill_manual(values = c("light blue", "dark blue"))
   } else if (nof1$response %in% c("ordinal")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
     ggplot(data, aes(fill = factor(Y, levels = 1:nof1$ncat), y = x, x = Treat)) +
@@ -251,6 +257,7 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
     }
     else {
       nof1_out <- model_result[[2]][[as.name(outcome_name)]][[1]]
+      title = outcome_name
     }
   }
 
