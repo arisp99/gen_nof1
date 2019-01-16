@@ -17,8 +17,8 @@ entered will give the 95\% confidence interval.}
 }
 \value{
 The function returns some useful information about the simulation.
-\item{input_mean}{The mean of the data inputed}
-\item{input_median}{The median of the data inputed}
+\item{input_mean}{The mean of the data inputed for each treatment type}
+\item{input_median}{The median of the data inputed for each treatment type}
 \item{treat_mean}{The mean of the data outputed for each treatment type}
 \item{treat_median}{The median of the data outputed for each treatment type}
 \item{coef_mean}{The mean of the data outputed for each coefficient}
