@@ -9,7 +9,7 @@ stacked_percent_barplot(nof1, title = NULL)
 \arguments{
 \item{nof1}{nof1 object created using nof1.data}
 
-\item{title}{title name}
+\item{title}{The title of the figure}
 }
 \description{
 Stacked_percent_barplot for raw data (for ordinal or binomial data)

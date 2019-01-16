@@ -11,9 +11,10 @@ frequency_plot(nof1, xlab = "Outcomes", title = NULL, bins = 10)
 
 \item{xlab}{x axis label}
 
-\item{title}{title name}
+\item{title}{The title of the figure}
 
-\item{bins}{number of bins. To be used for continuous data}
+\item{bins}{Used for continuous data. Specifies the number of bins. The
+default value is 10.}
 }
 \description{
 Frequency plot for raw data
