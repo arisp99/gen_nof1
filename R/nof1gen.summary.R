@@ -11,8 +11,6 @@
 #' timestamp <- seq(as.Date('2015-01-01'),as.Date('2016-01-31'), length.out = length(Y))
 #' time_series_plot(nof1, timestamp = timestamp, timestamp.format = '%m-%d-%Y', Outcome.name = 'Stress')
 
-# this should be only for ordinal data. maybe also binomial?
-
 # changed '#ffb380' to '#ff8080' and added '#80ff8c'. Issue was that there were
 # not enough color options. Added na.rm=TRUE for geom_hline. number of categories
 # is only used for ordinal data. so maybe time_series_plot only works for
@@ -26,46 +24,52 @@ time_series_plot <- function(nof1, time = NULL, timestamp = NULL, timestamp.form
     date = date)
   data2 <- aggregate(nof1$Y, list(Treatment = gsub("\\_", " ", nof1$Treat)), mean)
 
-  ggplot(data, aes(x = date, Y, fill = Treatment)) + geom_bar(stat = "identity",
-    na.rm = TRUE) + facet_grid(. ~ Treatment) + theme_bw() + theme(panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
-    labs(x = "Date", y = Outcome.name) + geom_hline(data = data2, aes(yintercept = x,
-    linetype = "Mean"), color = "black") + scale_y_continuous(breaks = 0:nof1$ncat,
-    oob = rescale_none, label = c("Low", rep("", length = nof1$ncat - 1), "High")) +
-    scale_fill_manual(values = c("#adc2eb", "#ffb380")) + scale_linetype_manual(name = "",
-    values = 1, guide = guide_legend(override.aes = list(color = c("black"))))
+  ggplot(data,
+    aes(x = date, Y, fill = Treatment)) +
+    geom_bar(stat = "identity", na.rm = TRUE) + # use y-values for the height of the bar
+    facet_grid(. ~ Treatment) + # form panels for each treatment
+    theme_bw() + # makes theme black and white
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+    labs(x = "Date", y = Outcome.name) +
+    geom_hline(data = data2, aes(yintercept = x, linetype = "Mean"), color = "black") + # adds horizontal line in the data
+    scale_y_continuous(breaks = 0:nof1$ncat, oob = rescale_none, label = c("Low", rep("", length = nof1$ncat - 1), "High")) +
+    # above adds in the lines on the y-axis and the low and high notation
+    scale_fill_manual(values = c("#adc2eb", "#ffb380")) +
+    scale_linetype_manual(name = "", values = 1, guide = guide_legend(override.aes = list(color = c("black"))))
 }
-
 
 #' Frequency plot for raw data
 #'
 #' @param nof1 nof1 object created using nof1.data
 #' @param xlab x axis label
-#' @param title title name
+#' @param title The title of the figure
+#' @param bins Used for continuous data. Specifies the number of bins. The
+#' default value is 10.
 #' @examples
 #' Y <- laughter$Y
 #' Treat <- laughter$Treat
 #' nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = 'Usual Routine', response = 'ordinal')
 #' frequency_plot(nof1)
-
-# changed the bin size (added bins=10) and added in na.rm = TURE. Seperated
-# binomial and ordinal data.
-frequency_plot <- function(nof1, xlab = NULL, title = NULL) {
+frequency_plot <- function(nof1, xlab = "Outcomes", title = NULL, bins = 10) {
 
   if (nof1$response %in% c("binomial")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
-    ggplot(data = data, aes(x = Y, y = x, fill = Treat)) + geom_bar(stat = "identity",
+    ggplot(data = data, aes(x = factor(Y, levels = 0:1), y = x, fill = Treat)) + geom_bar(stat = "identity",
       position = "dodge", width = 0.8, na.rm = TRUE) + labs(title = title,
-      x = xlab, y = "Frequency", fill = "Outcomes") + xlim(-0.5, 1.5) + theme_bw()
+      x = xlab, y = "Frequency", fill = "Treatment") +
+      theme_bw()
   } else if (nof1$response %in% c("ordinal")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
     ggplot(data = data, aes(x = Y, y = x, fill = Treat)) + geom_bar(stat = "identity",
       position = "dodge", na.rm = TRUE) + labs(title = title, x = xlab, y = "Frequency",
       fill = "Outcomes") + xlim(0.5, nof1$ncat + 0.5) + theme_bw()
   } else if (nof1$response %in% c("normal", "poisson")) {
-    data <- data.frame(Y = nof1$Y, Treat = nof1$Treat)
-    ggplot(data, aes(x = Y, fill = Treat, color = Treat)) + geom_histogram(position = "dodge",
-      na.rm = TRUE, bins = 10, alpha = 0.7) + labs(title = title, x = xlab) +
+    data <- data.frame(Y = nof1$Y, Treatment = nof1$Treat)
+    ggplot(data, aes(x = Y, fill = Treatment, color = Treatment)) +
+      # position dodge puts them next to each other, na.rm gets rid of NA data,
+      # bins is, alpha is how see through the colors are
+      geom_histogram(position = "dodge", na.rm = TRUE, bins = bins, alpha = 0.7) +
+      labs(title = title, x = xlab, y = "Frequency") +
       theme_bw()
   }
 }
@@ -73,26 +77,22 @@ frequency_plot <- function(nof1, xlab = NULL, title = NULL) {
 #' Stacked_percent_barplot for raw data (for ordinal or binomial data)
 #'
 #' @param nof1 nof1 object created using nof1.data
-#' @param title title name
+#' @param title The title of the figure
 #' @examples
 #' Y <- laughter$Y
 #' Treat <- laughter$Treat
 #' nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = 'Usual Routine', response = 'ordinal')
 #' stacked_percent_barplot(nof1)
-
-# seperated binomial and ordinal data
 stacked_percent_barplot <- function(nof1, title = NULL) {
 
   if (nof1$response %in% c("binomial")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
-
     ggplot(data, aes(fill = factor(Y, levels = 0:1), y = x, x = Treat)) + geom_bar(stat = "identity",
       position = "fill", na.rm = TRUE) + scale_y_continuous(labels = percent_format()) +
       theme_bw() + labs(title = title, x = "Treatment", y = "Percentage", fill = "Outcomes") +
-      scale_fill_manual(values = 3:4, labels = 0:1, drop = FALSE)
+      scale_fill_manual(values = c("purple", "orange"))
   } else if (nof1$response %in% c("ordinal")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
-
     ggplot(data, aes(fill = factor(Y, levels = 1:nof1$ncat), y = x, x = Treat)) +
       geom_bar(stat = "identity", position = "fill") + scale_y_continuous(labels = percent_format()) +
       theme_bw() + labs(title = title, x = "Treatment", y = "Percentage", fill = "Outcomes") +
@@ -123,8 +123,6 @@ stacked_percent_barplot <- function(nof1, title = NULL) {
 #' that have a value of 0 and 1, in the first and second row, respectivly}
 #' \item{baseline}{Number of data points taken while in baseline phase
 #' that have a value of 0 and 1, in the first and second row, respectivly}
-
-# added ability to work with missing data. added na.rm = TRUE
 raw_table <- function(nof1) {
 
   if (nof1$response %in% c("binomial", "ordinal")) {
@@ -242,7 +240,7 @@ probability_barplot <- function(result.list, result.name = NULL) {
 #' @export
 raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NULL,
                        time = NULL, timestamp = NULL, timestamp.format = "%m-%d-%Y",
-                       xlab = NULL, title = NULL) {
+                       xlab = "Outcomes", title = NULL, bins = 10) {
 
   if (!multiple) {
     nof1_out <- model_result[[2]][[1]]
@@ -259,7 +257,7 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
   if (graph == "time_series_plot") {
     time_series_plot(nof1_out, time = time, timestamp = timestamp, timestamp.format)
   } else if (graph == "frequency_plot") {
-    frequency_plot(nof1_out, xlab, title)
+    frequency_plot(nof1_out, xlab, title, bins)
   } else if (graph == "stacked_percent_barplot") {
     stacked_percent_barplot(nof1_out, title)
   } else if (graph == "raw_table") {
