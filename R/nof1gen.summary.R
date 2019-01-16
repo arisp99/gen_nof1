@@ -15,12 +15,16 @@
 # not enough color options. Added na.rm=TRUE for geom_hline. number of categories
 # is only used for ordinal data. so maybe time_series_plot only works for
 # ordinal.
-time_series_plot <- function(nof1, time = NULL, timestamp = NULL, timestamp.format = "%m/%d/%Y %H:%M",
+time_series_plot <- function(nof1, date_start = NULL, date_end = NULL, date.format = "%m/%d/%Y %H:%M",
   Outcome.name = "") {
   if (nof1$response %in% c("normal", "poisson")){
-    data <- data.frame(Y = nof1$Y, datum = 1:length(nof1$Treat), Treatment = nof1$Treat)
-    ggplot(data, aes(x = datum, Y, color = Treatment)) + geom_point(na.rm = TRUE) + geom_path(na.rm = TRUE) + theme_bw() +
-      scale_x_continuous(breaks=cumsum(rle(nof1$Treat)$lengths), labels = c("baseline", "A", "B"))
+    period <- seq(date_start, date_end, length.out = length(nof1$Y))
+    date <- as.Date(period, date.format)
+    data <- data.frame(Y = nof1$Y, date = date, Treatment = factor(nof1$Treat, levels = c("baseline", "A", "B")))
+    ggplot(data, aes(x = date, Y, color = Treatment)) + geom_point(na.rm = TRUE) +
+      facet_wrap(.~ Treatment) + theme_bw() + scale_color_manual(values = c("#619CFF", "#F8766D", "#00BA38")) +
+      labs(x = "Date", y = "Outcomes")
+      # geom_smooth(method ="lm", na.rm = TRUE)
   }
   else{
     date <- as.Date(timestamp, timestamp.format)
@@ -245,7 +249,7 @@ probability_barplot <- function(result.list, result.name = NULL) {
 #' raw_graphs("frequency_plot", result_afib)
 #' @export
 raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NULL,
-                       time = NULL, timestamp = NULL, timestamp.format = "%m-%d-%Y",
+                       date_start = NULL, date_end = NULL, date.format = "%m-%d-%Y",
                        xlab = "Outcomes", title = NULL, bins = 10) {
 
   if (!multiple) {
@@ -262,7 +266,7 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
   }
 
   if (graph == "time_series_plot") {
-    time_series_plot(nof1_out, time = time, timestamp = timestamp, timestamp.format)
+    time_series_plot(nof1_out, date_start = date_start, date_end = date_end, date.format = date.format)
   } else if (graph == "frequency_plot") {
     frequency_plot(nof1_out, xlab, title, bins)
   } else if (graph == "stacked_percent_barplot") {
