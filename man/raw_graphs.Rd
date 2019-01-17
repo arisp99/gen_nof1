@@ -6,7 +6,7 @@
 \usage{
 raw_graphs(graph, model_result, multiple = FALSE, outcome_name = NULL,
   date_start = NULL, date_end = NULL, date.format = "\%m-\%d-\%Y",
-  xlab = "Outcomes", title = NULL, bins = 10)
+  title = NULL, bins = 10)
 }
 \arguments{
 \item{graph}{A string which specifies the specific table or graph to construct.
