@@ -146,18 +146,30 @@ raw_table <- function(nof1) {
   }
 }
 
-
-kernel_plot <- function(result, xlim_value = c(0, 10), title = NULL) {
+#' Kernel density estimation plot
+#'
+#' Creates a kernel density estimation plot for a specific outcome
+#'
+#' @param result An object with information about the simulation. The object is
+#' derived from the output of nof1.run
+#' @param bins The number of bins the histogram will contain. Default is 30.
+#' @param x_max The upper limit of the x-axis. Default is to set the upper limit
+#' to the maximum value of the data inputed
+#' @param title The title of the graph
+kernel_plot <- function(result, bins = 30, x_max = NULL, title = NULL) {
   samples <- do.call(rbind, result$samples)
   beta_variable <- exp(samples[, grep("beta", colnames(samples))])
-  print(str(samples))
-  print(str(beta_variable))
-  # print(beta_variable)
-  # print(beta_variable[0, ])
   data <- as.data.frame(beta_variable)
+  data <- melt(data, id.vars = NULL, variable.name = "beta", value.name = "odds_ratio")
 
-  ggplot(data, aes(beta_variable)) + geom_density() + theme_bw() + xlim(xlim_value[1],
-    xlim_value[2]) + labs(title = title, x = "Odds Ratio", y = "Density")
+  if (is.null(x_max)){
+    x_max <- max(data$odds_ratio)
+  }
+
+  ggplot(data, aes(x = odds_ratio, color = beta)) + geom_density(na.rm = TRUE, size = 2) +
+    geom_histogram(aes(y = ..density..), bins = bins, col = "gray", alpha = 0.7, na.rm = TRUE) + theme_bw() +
+    facet_wrap(. ~ beta, scales = "free") + xlim(0, x_max) +
+    labs(title = title, x = "Odds Ratio", y = "Density")
 }
 
 
@@ -276,101 +288,76 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
   } else {"Not a viable graph or table"}
 }
 
-# raw_graphs <- function(graph, dataset, index, time = NULL, timestamp = NULL,
-#   xlab = NULL, title = NULL) {
-#   data = dataset$data
-#   metadata = dataset$metadata
+result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = NULL,
+                          result.name = NULL, title = NULL, bins = 30, x_max = NULL) {
+  if (!multiple && graph == "kernel_plot"){
+    kernel_plot(model_result[[2]][[2]], bins = bins, x_max = x_max, title = title)
+  }
+  else if (!multiple){
+    "Can only create a kernel plot for one outcome"
+  }
+  else if (multiple && is.null(outcome_name)) {
+    "Need to input an outcome name if have multiple results"
+  }
+  else{
+    kern_out <- model_result[[2]][[as.name(outcome_name)]][[2]]
+    if (is.null(outcome_name) && graph == "kernel_plot"){
+      "Need to input the specific outcome for a kernel plot with multiple outcomes"
+    }
+    else if (graph == "kernel_plot"){
+      kernel_plot(kern_out, bins = bins, x_max = x_max, title = outcome_name)
+    }
+    else if (graph == "odds_ratio_plot"){
+      odds_ratio_plot(result.list, result.name = result.name, level = level, title = title)
+    }
+    else if (graph == "probability_barplot"){
+      probability_barplot(result.list, result.name = result.name)
+    } else {"Not a viable graph"}
+  }
+}
+
+# data = dataset$data
+# metadata = dataset$metadata
 #
-#   # getting our data read and formated
-#   read_data <- tryCatch({
-#     read_dummy <- formated_read_input(data, metadata)
-#     if (metadata$washout == "FALSE" || is.null(metadata$washout)) {
-#       read_dummy
-#     } else {
-#       read_dummy <- washout(read_dummy, metadata)
-#       read_dummy
-#     }
-#   }, error = function(error) {
-#     return(paste("input read error: ", error))
-#   })
+# # getting our data read and formated
+# read_data <- tryCatch({
+#   read_dummy <- formated_read_input(data, metadata)
+#   if (metadata$washout == "FALSE" || is.null(metadata$washout)) {
+#     read_dummy
+#   } else {
+#     read_dummy <- washout(read_dummy, metadata)
+#     read_dummy
+#   }
+# }, error = function(error) {
+#   return(paste("input read error: ", error))
+# })
 #
-#   # Define some variables to be used in constructing nof1 object
-#   nof_responses <- length(data)
-#   response_type = metadata[length(metadata) - nof_responses + index]
+# # Define some variables to be used in constructing nof1 object
+# names <- names(data)
+# nof_responses <- length(data)
+# read_len <- length(read_data)
+# nof_treat <- length(unique(unlist(data[, 1]$treat)))
 #
-#   data_out <- list(Treat = read_data[, index]$treatment[[1]], Y = read_data[, index]$result[[1]])
-#   nof1_out <- with(data_out, {
-#     nof1.data(Y, Treat, response = response_type)
-#   })
-#
-#   if (graph == "time_series_plot") {
-#     time_series_plot(nof1_out)
-#   } else if (graph == "frequency_plot") {
-#     frequency_plot(nof1_out, xlab, title)
-#   } else if (graph == "stacked_percent_barplot") {
-#     stacked_percent_barplot(nof1_out, title)
-#   } else if (graph == "raw_table") {
-#     raw_table(nof1_out)
-#   } else {"Not a viable graph or table"}
+# if (graph == "kernel_plot") {
+#   response_type = metadata[length(metadata) - nof_responses + kern_index]
+#   data_out <- list(Treat = read_data[, kern_index]$treatment[[1]], Y = read_data[, kern_index]$result[[1]])
+#   nof1_out <- with(data_out, {nof1.data(Y, Treat, response = response_type)})
+#   result_out <- nof1.run(nof1_out)
+#   # print(str(result_out))
+#   kernel_plot(result_out, title = title)
 # }
-
-result_graphs <- function(graph, dataset, kern_index, title = NULL, result.name = NULL) {
-  data = dataset$data
-  metadata = dataset$metadata
-
-  # getting our data read and formated
-  read_data <- tryCatch({
-    read_dummy <- formated_read_input(data, metadata)
-    if (metadata$washout == "FALSE" || is.null(metadata$washout)) {
-      read_dummy
-    } else {
-      read_dummy <- washout(read_dummy, metadata)
-      read_dummy
-    }
-  }, error = function(error) {
-    return(paste("input read error: ", error))
-  })
-
-  # Define some variables to be used in constructing nof1 object
-  names <- names(data)
-  nof_responses <- length(data)
-  read_len <- length(read_data)
-  nof_treat <- length(unique(unlist(data[, 1]$treat)))
-
-  if (graph == "kernel_plot") {
-    response_type = metadata[length(metadata) - nof_responses + kern_index]
-    data_out <- list(Treat = read_data[, kern_index]$treatment[[1]], Y = read_data[, kern_index]$result[[1]])
-    nof1_out <- with(data_out, {nof1.data(Y, Treat, response = response_type)})
-    result_out <- nof1.run(nof1_out)
-    # print(str(result_out))
-    kernel_plot(result_out, title = title)
-  }
-  else {
-    returns = list()
-    for (i in 1:nof_responses) {
-      returns[[i]] <- result_graphs_helper(read_data[, i], names[i], metadata[length(metadata) -
-        nof_responses + i], nof_treat)
-    }
-    names(returns) <- as.list(names)
-    # print(str(returns))
-    if (graph == "odds_ratio_plot") {
-      odds_ratio_plot(returns, result.name = result.name, title = title)
-    } else if (graph == "probability_barplot") {
-      probability_barplot(returns, result.name = result.name)
-    } else {"Not a viable graph or table"
-    }
-  }
-}
-
-# Helper for result_graphs
-result_graphs_helper <- function(specific_data, outcome_name, response_type, nof_treat) {
-  summary <- tryCatch({
-    data_out <- list(Treat = specific_data$treatment[[1]], Y = specific_data$result[[1]])
-    nof1_out <- with(data_out, {
-      nof1.data(Y, Treat, response = response_type)
-    })
-    result_out <- nof1.run(nof1_out)
-  }, error = function(error) {
-    return(paste(outcome_name, "run error: ", error))
-  })
-}
+# else {
+#   returns = list()
+#   for (i in 1:nof_responses) {
+#     returns[[i]] <- result_graphs_helper(read_data[, i], names[i], metadata[length(metadata) -
+#                                                                               nof_responses + i], nof_treat)
+#   }
+#   names(returns) <- as.list(names)
+#   # print(str(returns))
+#   if (graph == "odds_ratio_plot") {
+#     odds_ratio_plot(returns, result.name = result.name, title = title)
+#   } else if (graph == "probability_barplot") {
+#     probability_barplot(returns, result.name = result.name)
+#   } else {"Not a viable graph or table"
+#   }
+# }
