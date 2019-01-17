@@ -91,10 +91,14 @@ all_output_no_scd <-
 Graphs can also be used to analyze the data. There are several graphs that can be created both for the raw data and for the result data, which is created by our simulataions. At the time of this update, it is only possible to create the raw data graphs and tables. There are four graphs that can be constructed. Below is an example for each one:
 
 ```{r}
-# Use the function raw_graphs to creat the graphs
-# raw_graphs("time_series_plot", result_diet_small) # time series does not work as of now
+# Use the function raw_graphs to create the graphs
+raw_graphs("time_series_plot", all_result_diet_small, TRUE, "daily_stool_frequency", date_start = as.Date('2015-01-01'), date_end = as.Date('2016-01-31'))
 raw_graphs("frequency_plot", result_afib)
 raw_graphs("stacked_percent_barplot", all_result_diet_small, TRUE, "daily_stool_consistency")
 raw_graphs("raw_table", all_result_afib, TRUE, "afib_episode_yn")
+
+# Use the function result_graphs to create the graphs
+result_graphs("kernel_plot", all_result_diet_small, outcome_name = "daily_stool_frequency", title = "daily_stool_frequency")
+result_graphs("kernel_plot", result_diet_small, multiple = FALSE, title = "daily_stool_frequency")
 ```
 
