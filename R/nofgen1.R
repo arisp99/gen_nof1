@@ -33,4 +33,5 @@ NULL
 #' @import MASS
 #' @import rjags
 #' @import scales
+#' @import reshape2
 NULL
