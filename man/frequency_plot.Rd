@@ -4,12 +4,10 @@
 \alias{frequency_plot}
 \title{Frequency plot for raw data}
 \usage{
-frequency_plot(nof1, xlab = "Outcomes", title = NULL, bins = 10)
+frequency_plot(nof1, title = NULL, bins = 10)
 }
 \arguments{
 \item{nof1}{nof1 object created using nof1.data}
-
-\item{xlab}{x axis label}
 
 \item{title}{The title of the figure}
 

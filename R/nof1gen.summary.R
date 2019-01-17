@@ -16,14 +16,14 @@
 # is only used for ordinal data. so maybe time_series_plot only works for
 # ordinal.
 time_series_plot <- function(nof1, date_start = NULL, date_end = NULL, date.format = "%m/%d/%Y %H:%M",
-  Outcome.name = "") {
+  title = NULL) {
   if (nof1$response %in% c("normal", "poisson")){
     period <- seq(date_start, date_end, length.out = length(nof1$Y))
     date <- as.Date(period, date.format)
     data <- data.frame(Y = nof1$Y, date = date, Treatment = factor(nof1$Treat, levels = c("baseline", "A", "B")))
     ggplot(data, aes(x = date, Y, color = Treatment)) + geom_point(na.rm = TRUE) +
       facet_wrap(.~ Treatment) + theme_bw() + scale_color_manual(values = c("#619CFF", "#F8766D", "#00BA38")) +
-      labs(x = "Date", y = "Outcomes")
+      labs(x = "Date", y = "Outcomes", title = title)
       # geom_smooth(method ="lm", na.rm = TRUE)
   }
   else{
@@ -51,7 +51,6 @@ time_series_plot <- function(nof1, date_start = NULL, date_end = NULL, date.form
 #' Frequency plot for raw data
 #'
 #' @param nof1 nof1 object created using nof1.data
-#' @param xlab x axis label
 #' @param title The title of the figure
 #' @param bins Used for continuous data. Specifies the number of bins. The
 #' default value is 10.
@@ -60,18 +59,18 @@ time_series_plot <- function(nof1, date_start = NULL, date_end = NULL, date.form
 #' Treat <- laughter$Treat
 #' nof1 <- nof1.data(Y, Treat, ncat = 11, baseline = 'Usual Routine', response = 'ordinal')
 #' frequency_plot(nof1)
-frequency_plot <- function(nof1, xlab = "Outcomes", title = NULL, bins = 10) {
+frequency_plot <- function(nof1, title = NULL, bins = 10) {
 
   if (nof1$response %in% c("binomial")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
     ggplot(data = data, aes(x = factor(Y, levels = 0:1), y = x, fill = Treat)) + geom_bar(stat = "identity",
       position = "dodge", width = 0.8, na.rm = TRUE, alpha = 0.9) + labs(title = title,
-      x = xlab, y = "Count", fill = "Treatment") + scale_x_discrete(labels = c("Low", "High")) +
+      x = "Outcomes", y = "Count", fill = "Treatment") + scale_x_discrete(labels = c("Low", "High")) +
       theme_bw()
   } else if (nof1$response %in% c("ordinal")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
     ggplot(data = data, aes(x = Y, y = x, fill = Treat)) + geom_bar(stat = "identity",
-      position = "dodge", na.rm = TRUE) + labs(title = title, x = xlab, y = "Count",
+      position = "dodge", na.rm = TRUE) + labs(title = title, x = "Outcomes", y = "Count",
       fill = "Outcomes") + xlim(0.5, nof1$ncat + 0.5) + theme_bw()
   } else if (nof1$response %in% c("normal", "poisson")) {
     data <- data.frame(Y = nof1$Y, Treatment = nof1$Treat)
@@ -79,7 +78,7 @@ frequency_plot <- function(nof1, xlab = "Outcomes", title = NULL, bins = 10) {
       # position dodge puts them next to each other, na.rm gets rid of NA data,
       # bins is, alpha is how see through the colors are
       geom_histogram(position = "dodge", na.rm = TRUE, bins = bins, alpha = 0.9) +
-      labs(title = title, x = xlab, y = "Count") +
+      labs(title = title, x = "Outcomes", y = "Count") +
       theme_bw()
   }
 }
@@ -262,7 +261,7 @@ probability_barplot <- function(result.list, result.name = NULL) {
 #' @export
 raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NULL,
                        date_start = NULL, date_end = NULL, date.format = "%m-%d-%Y",
-                       xlab = "Outcomes", title = NULL, bins = 10) {
+                       title = NULL, bins = 10) {
 
   if (!multiple) {
     nof1_out <- model_result[[2]][[1]]
@@ -278,9 +277,9 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
   }
 
   if (graph == "time_series_plot") {
-    time_series_plot(nof1_out, date_start = date_start, date_end = date_end, date.format = date.format)
+    time_series_plot(nof1_out, date_start = date_start, date_end = date_end, date.format = date.format, title = title)
   } else if (graph == "frequency_plot") {
-    frequency_plot(nof1_out, xlab, title, bins)
+    frequency_plot(nof1_out, title, bins)
   } else if (graph == "stacked_percent_barplot") {
     stacked_percent_barplot(nof1_out, title)
   } else if (graph == "raw_table") {
@@ -289,9 +288,9 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
 }
 
 result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = NULL,
-                          result.name = NULL, title = NULL, bins = 30, x_max = NULL) {
+                          result.name = NULL, bins = 30, x_max = NULL) {
   if (!multiple && graph == "kernel_plot"){
-    kernel_plot(model_result[[2]][[2]], bins = bins, x_max = x_max, title = title)
+    kernel_plot(model_result[[2]][[2]], bins = bins, x_max = x_max, title = outcome_name)
   }
   else if (!multiple){
     "Can only create a kernel plot for one outcome"

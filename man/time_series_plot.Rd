@@ -5,7 +5,7 @@
 \title{time series plot across different interventions}
 \usage{
 time_series_plot(nof1, date_start = NULL, date_end = NULL,
-  date.format = "\%m/\%d/\%Y \%H:\%M", Outcome.name = "")
+  date.format = "\%m/\%d/\%Y \%H:\%M", title = NULL)
 }
 \arguments{
 \item{nof1}{nof1 object created using nof1.data}
