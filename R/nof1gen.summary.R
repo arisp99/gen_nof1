@@ -23,7 +23,7 @@ time_series_plot <- function(nof1, date_start = NULL, date_end = NULL, date.form
     data <- data.frame(Y = nof1$Y, date = date, Treatment = factor(nof1$Treat, levels = c("baseline", "A", "B")))
     ggplot(data, aes(x = date, Y, color = Treatment)) + geom_point(na.rm = TRUE) +
       facet_wrap(.~ Treatment) + theme_bw() + scale_color_manual(values = c("#619CFF", "#F8766D", "#00BA38")) +
-      labs(x = "Date", y = "Outcomes", title = title)
+      labs(x = "Date", y = "Outcomes", title = title, subtitle = "Time Series Plot")
       # geom_smooth(method ="lm", na.rm = TRUE)
   }
   else{
@@ -64,8 +64,9 @@ frequency_plot <- function(nof1, title = NULL, bins = 10) {
   if (nof1$response %in% c("binomial")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
     ggplot(data = data, aes(x = factor(Y, levels = 0:1), y = x, fill = Treat)) + geom_bar(stat = "identity",
-      position = "dodge", width = 0.8, na.rm = TRUE, alpha = 0.9) + labs(title = title,
-      x = "Outcomes", y = "Count", fill = "Treatment") + scale_x_discrete(labels = c("Low", "High")) +
+      position = "dodge", width = 0.8, na.rm = TRUE, alpha = 0.9) +
+      labs(title = title, subtitle = "Frequency Plot", x = "Outcomes", y = "Count", fill = "Treatment") +
+      scale_x_discrete(labels = c("Low", "High")) +
       theme_bw()
   } else if (nof1$response %in% c("ordinal")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
@@ -78,7 +79,7 @@ frequency_plot <- function(nof1, title = NULL, bins = 10) {
       # position dodge puts them next to each other, na.rm gets rid of NA data,
       # bins is, alpha is how see through the colors are
       geom_histogram(position = "dodge", na.rm = TRUE, bins = bins, alpha = 0.9) +
-      labs(title = title, x = "Outcomes", y = "Count") +
+      labs(title = title, subtitle = "Frequency Plot", x = "Outcomes", y = "Count") +
       theme_bw()
   }
 }
@@ -98,7 +99,8 @@ stacked_percent_barplot <- function(nof1, title = NULL) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
     ggplot(data, aes(fill = factor(Y, levels = 0:1, labels = c("Low", "High")), y = x, x = Treat)) + geom_bar(stat = "identity",
       position = "fill", na.rm = TRUE) + scale_y_continuous(labels = percent_format()) +
-      theme_bw() + labs(title = title, x = "Treatment", y = "Percentage", fill = "Outcomes") +
+      theme_bw() +
+      labs(title = title, subtitle = "Stacked Percent Barplot", x = "Treatment", y = "Percentage", fill = "Outcomes") +
       scale_fill_manual(values = c("light blue", "dark blue"))
   } else if (nof1$response %in% c("ordinal")) {
     data <- aggregate(nof1$Y, list(Y = nof1$Y, Treat = nof1$Treat), length)
@@ -168,37 +170,40 @@ kernel_plot <- function(result, bins = 30, x_max = NULL, title = NULL) {
   ggplot(data, aes(x = odds_ratio, color = beta)) + geom_density(na.rm = TRUE, size = 2) +
     geom_histogram(aes(y = ..density..), bins = bins, col = "gray", alpha = 0.7, na.rm = TRUE) + theme_bw() +
     facet_wrap(. ~ beta, scales = "free") + xlim(0, x_max) +
-    labs(title = title, x = "Odds Ratio", y = "Density")
+    labs(title = title, subtitle = "Kernel Density Estimation Plot", x = "Odds Ratio", y = "Density")
 }
 
 
-odds_ratio_plot <- function(result.list, result.name = NULL, level = 0.95, title = NULL) {
+odds_ratio_plot <- function(result.list, level = 0.95, title = "Odds Ratio Plot") {
 
-  odds_ratio <- matrix(NA, nrow = length(result.list), ncol = 3)
+  num_coef <- length(result.list[[1]][[1]]$Treat.name)
+  odds_ratio <- matrix(NA, nrow = num_coef*length(result.list), ncol = 3)
+  # odds_ratio <- matrix(NA, nrow = length(result.list), ncol = 3)
+  beta_names <- list()
 
   for (i in 1:length(result.list)) {
-    result <- result.list[[i]]
+    result <- result.list[[i]][[2]]
     samples <- do.call(rbind, result$samples)
-    odds_ratio[i, ] <- exp(quantile(samples[, grep("beta", colnames(samples))],
-      c((1 - level)/2, 0.5, 1 - (1 - level)/2)))
+    df_samples <- as.data.frame(samples[, grep("beta", colnames(samples))])
+    beta_names <- names(df_samples)
+    for (j in 1:num_coef) {
+      odds_ratio[i + length(result.list) * (j-1), 1:3] <-
+        exp(quantile(df_samples[[j]], c((1 - level)/2, 0.5, 1 - (1 - level)/2)))
+    }
+    # odds_ratio[i, ] <- exp(quantile(samples[, grep("beta", colnames(samples))], c((1 - level)/2, 0.5, 1 - (1 - level)/2)))
   }
 
   odds <- as.data.frame(odds_ratio)
   names(odds) <- c("lower", "OR", "upper")
+  odds$outcomes <- names(result.list)
+  odds$beta <- (sort(rep(beta_names, 4)))
 
-  if (is.null(result.name)) {
-    odds$vars <- row.names(odds)
-  } else {
-    if (length(result.name) != length(result.list)) {
-      stop("result.name should have same length as result.list")
-    }
-    odds$vars <- result.name
-  }
-  ticks <- c(0.1, 0.2, 0.5, 1, 2, 5, 10)
-  ggplot(odds, aes(y = OR, x = factor(vars))) + geom_point() + geom_errorbar(aes(ymin = lower,
-    ymax = upper), width = 0.2) + scale_y_log10(breaks = ticks, labels = ticks) +
-    geom_hline(yintercept = 1, linetype = 2) + coord_flip() + labs(x = "Variables",
-    y = "Odds Ratio", title = title) + theme_bw()
+  ticks <- c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100)
+  ggplot(odds, aes(x = OR, y = factor(outcomes), color = outcomes)) + geom_point(size = 3) +
+    geom_errorbarh(aes(xmin = lower, xmax = upper), height = 0.2, size = 1) +
+    scale_x_log10(breaks = ticks, labels = ticks, limits = c(0.01, 100)) +
+    geom_vline(xintercept = 1, linetype = "dashed") + facet_wrap(. ~ beta, scales = "free") +
+    labs(y = "Outcomes", x = "Odds Ratio", color = "Outcomes", title = title) + theme_bw()
 }
 
 
@@ -268,7 +273,7 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
   }
   else {
     if (is.null(outcome_name)) {
-      return("Need to specify outcome name when have model_result input with multiple possible outcome")
+      stop("Need to specify outcome name when have model_result input with multiple possible outcome")
     }
     else {
       nof1_out <- model_result[[2]][[as.name(outcome_name)]][[1]]
@@ -284,7 +289,7 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
     stacked_percent_barplot(nof1_out, title)
   } else if (graph == "raw_table") {
     raw_table(nof1_out)
-  } else {"Not a viable graph or table"}
+  } else {stop("Not a viable graph or table")}
 }
 
 result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = NULL,
@@ -293,25 +298,26 @@ result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = N
     kernel_plot(model_result[[2]][[2]], bins = bins, x_max = x_max, title = outcome_name)
   }
   else if (!multiple){
-    "Can only create a kernel plot for one outcome"
+    stop("Can only create a kernel plot for one outcome")
   }
   else if (multiple && is.null(outcome_name)) {
-    "Need to input an outcome name if have multiple results"
+    stop("Need to input an outcome name if have multiple results")
   }
   else{
     kern_out <- model_result[[2]][[as.name(outcome_name)]][[2]]
     if (is.null(outcome_name) && graph == "kernel_plot"){
-      "Need to input the specific outcome for a kernel plot with multiple outcomes"
+      stop("Need to input the specific outcome for a kernel plot with multiple outcomes")
     }
     else if (graph == "kernel_plot"){
       kernel_plot(kern_out, bins = bins, x_max = x_max, title = outcome_name)
     }
     else if (graph == "odds_ratio_plot"){
-      odds_ratio_plot(result.list, result.name = result.name, level = level, title = title)
+      if (is.null(title)){title = "Odds Ratio Plot"}
+      odds_ratio_plot(result.list, level = level, title = title)
     }
     else if (graph == "probability_barplot"){
       probability_barplot(result.list, result.name = result.name)
-    } else {"Not a viable graph"}
+    } else {stop("Not a viable graph")}
   }
 }
 
