@@ -201,7 +201,7 @@ odds_ratio_plot <- function(result.list, level = 0.95, title = "Odds Ratio Plot"
   ticks <- c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100)
   ggplot(odds, aes(x = OR, y = factor(outcomes), color = outcomes)) + geom_point(size = 3) +
     geom_errorbarh(aes(xmin = lower, xmax = upper), height = 0.2, size = 1) +
-    scale_x_log10(breaks = ticks, labels = ticks, limits = c(0.01, 100)) +
+    scale_x_log10(breaks = ticks, labels = ticks) +
     geom_vline(xintercept = 1, linetype = "dashed") + facet_wrap(. ~ beta, scales = "free") +
     labs(y = "Outcomes", x = "Odds Ratio", color = "Outcomes", title = title) + theme_bw()
 }
