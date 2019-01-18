@@ -98,7 +98,9 @@ raw_graphs("stacked_percent_barplot", all_result_diet_small, TRUE, "daily_stool_
 raw_graphs("raw_table", all_result_afib, TRUE, "afib_episode_yn")
 
 # Use the function result_graphs to create the graphs
-result_graphs("kernel_plot", all_result_diet_small, outcome_name = "daily_stool_frequency", title = "daily_stool_frequency")
+result_graphs("kernel_plot", all_result_diet_small, outcome_name = "daily_stool_frequency")
 result_graphs("kernel_plot", result_diet_small, multiple = FALSE, title = "daily_stool_frequency")
+result_graphs("odds_ratio_plot", all_result_diet_small)
+result_graphs("odds_ratio_plot", all_result_afib)
 ```
 
