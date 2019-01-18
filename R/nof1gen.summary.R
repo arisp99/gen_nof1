@@ -185,6 +185,7 @@ odds_ratio_plot <- function(result.list, level = 0.95, title = "Odds Ratio Plot"
     result <- result.list[[i]][[2]]
     samples <- do.call(rbind, result$samples)
     df_samples <- as.data.frame(samples[, grep("beta", colnames(samples))])
+    if (length(num_coef) == 1) {colnames(df_samples) <- "beta_A"}
     beta_names <- names(df_samples)
     for (j in 1:num_coef) {
       odds_ratio[i + length(result.list) * (j-1), 1:3] <-
@@ -196,7 +197,7 @@ odds_ratio_plot <- function(result.list, level = 0.95, title = "Odds Ratio Plot"
   odds <- as.data.frame(odds_ratio)
   names(odds) <- c("lower", "OR", "upper")
   odds$outcomes <- names(result.list)
-  odds$beta <- (sort(rep(beta_names, 4)))
+  odds$beta <- (sort(rep(beta_names, length(result.list))))
 
   ticks <- c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100)
   ggplot(odds, aes(x = OR, y = factor(outcomes), color = outcomes)) + geom_point(size = 3) +
@@ -293,30 +294,28 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
 }
 
 result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = NULL,
-                          result.name = NULL, bins = 30, x_max = NULL) {
+                          result.name = NULL, title = NULL, bins = 30, x_max = NULL,
+                          level = 0.95) {
   if (!multiple && graph == "kernel_plot"){
     kernel_plot(model_result[[2]][[2]], bins = bins, x_max = x_max, title = outcome_name)
   }
   else if (!multiple){
-    stop("Can only create a kernel plot for one outcome")
-  }
-  else if (multiple && is.null(outcome_name)) {
-    stop("Need to input an outcome name if have multiple results")
+    stop("Can only create a kernel plot if input one outcome")
   }
   else{
-    kern_out <- model_result[[2]][[as.name(outcome_name)]][[2]]
     if (is.null(outcome_name) && graph == "kernel_plot"){
       stop("Need to input the specific outcome for a kernel plot with multiple outcomes")
     }
     else if (graph == "kernel_plot"){
+      kern_out <- model_result[[2]][[as.name(outcome_name)]][[2]]
       kernel_plot(kern_out, bins = bins, x_max = x_max, title = outcome_name)
     }
     else if (graph == "odds_ratio_plot"){
       if (is.null(title)){title = "Odds Ratio Plot"}
-      odds_ratio_plot(result.list, level = level, title = title)
+      odds_ratio_plot(model_result[[2]], level = level, title = title)
     }
     else if (graph == "probability_barplot"){
-      probability_barplot(result.list, result.name = result.name)
+      probability_barplot(model_result, result.name = result.name)
     } else {stop("Not a viable graph")}
   }
 }
