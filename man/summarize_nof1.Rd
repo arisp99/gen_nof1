@@ -27,9 +27,9 @@ The function returns some useful information about the simulation.
  than zero for each treatment type}
 \item{coef_greater_zero}{The probability that the output value is greater
  than zero for each coefficient}
-\item{treat_confidence}{The confidence interval of the input data
+\item{quantile_confidence}{The quantile for the input data
 set of the output value for each treatment type}
-\item{coef_confidence}{The confidence interval of the input data set
+\item{quantile_confidence}{The quantile for the input data set
 of the output value for each coefficient}
 }
 \description{

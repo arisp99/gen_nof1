@@ -199,9 +199,9 @@ inv_logit <- function(a) {
 #'  than zero for each treatment type}
 #' \item{coef_greater_zero}{The probability that the output value is greater
 #'  than zero for each coefficient}
-#' \item{treat_confidence}{The confidence interval of the input data
+#' \item{quantile_confidence}{The quantile for the input data
 #' set of the output value for each treatment type}
-#' \item{coef_confidence}{The confidence interval of the input data set
+#' \item{quantile_confidence}{The quantile for the input data set
 #' of the output value for each coefficient}
 #' @export
 
@@ -293,18 +293,18 @@ summarize_nof1 <- function(model_results, nof_treat, alpha = 0.025) {
     names(coef_greater_zero) <- treat_n
     coef_greater_zero <- unlist(coef_greater_zero)
 
-    # confidence interval for the treatment draw.
-    treat_confidence <- list()
+    # quantile for the treatment draw.
+    quantile_confidence <- list()
     for (i in 1:nof_treat) {
-      treat_confidence <- rbind(treat_confidence, quantile(treatment[[i]],
+      quantile_confidence <- rbind(quantile_confidence, quantile(treatment[[i]],
         c(alpha, 1 - alpha)))
     }
-    rownames(treat_confidence) <- treat_n
+    rownames(quantile_confidence) <- treat_n
 
-    # confidence interval for the coef draw.
-    coef_confidence <- list()
+    # quantile for the coef draw.
+    quantile_confidence <- list()
     for (i in 1:nof_treat) {
-      coef_confidence <- rbind(coef_confidence, quantile(samples[, i], c(alpha,
+      quantile_confidence <- rbind(quantile_confidence, quantile(samples[, i], c(alpha,
         1 - alpha)))
     }
     rownames(coef_confidence) <- treat_n
@@ -312,7 +312,7 @@ summarize_nof1 <- function(model_results, nof_treat, alpha = 0.025) {
     final <- list(input_mean = input_mean, input_median = input_median, treat_mean = treat_mean,
       treat_median = treat_median, coef_mean = coef_mean, coef_median = coef_median,
       treat_greater_zero = treat_greater_zero, coef_greater_zero = coef_greater_zero,
-      treat_confidence = treat_confidence, coef_confidence = coef_confidence)
+      quantile_confidence = quantile_confidence, quantile_confidence = quantile_confidence)
 
     return(final)
   })
