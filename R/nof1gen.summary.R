@@ -173,7 +173,14 @@ kernel_plot <- function(result, bins = 30, x_max = NULL, title = NULL) {
     labs(title = title, subtitle = "Kernel Density Estimation Plot", x = "Odds Ratio", y = "Density")
 }
 
-
+#' Odds ratio plot
+#'
+#' Creates a odds ratio plot for all the outcomes
+#'
+#' @param result.list A list of objects with information about the simulation.
+#' The objects are derived from the output of nof1.run
+#' @param level The level defines the quantiles we want to examine.
+#' @param title The title of the graph. Default is just to be: "Odds Ratio Plot"
 odds_ratio_plot <- function(result.list, level = 0.95, title = "Odds Ratio Plot") {
 
   num_coef <- length(result.list[[1]][[1]]$Treat.name)
@@ -213,36 +220,44 @@ probability_barplot <- function(result.list, result.name = NULL) {
   probability <- rep(NA, length(result.list) * 2)
 
   for (i in 1:length(result.list)) {
-    result <- result.list[[i]]
+    result <- result.list[[i]][[2]]
     # print(str(result$samples))
     samples <- do.call(rbind, result$samples)
     # print(str(samples))
-    probability[(i - 1) * 2 + 1] <- mean(exp(samples[, grep("beta", colnames(samples))]) >
-      1)
+    probability[(i - 1) * 2 + 1] <- mean(exp(samples[, grep("beta", colnames(samples))]) > 1)
+    # seems to take mean of values greater than 1. why????
     probability[i * 2] <- 1 - probability[(i - 1) * 2 + 1]
   }
 
-  if (is.null(result.name)) {
-    result.name <- rep(1:length(result.list), each = 2)
-  } else {
-    if (length(result.name) != length(result.list)) {
-      stop("result.name should have same length as result.list")
-    }
-    result.name <- rep(result.name, each = 2)
-  }
+  # if (is.null(result.name)) {
+  #   result.name <- rep(1:length(result.list), each = 2)
+  # } else {
+  #   if (length(result.name) != length(result.list)) {
+  #     stop("result.name should have same length as result.list")
+  #   }
+  #   result.name <- rep(result.name, each = 2)
+  # }
+  result.name <- rep(names(result.list), each = 2)
   # print(probability)
   # print(result.name)
-  print((result.list[[1]]$nof1$Treat)[2])
+  # print(levels(result.list[[1]][[1]]$Treat))
+  print(as.character(sort(unique(factor(result.list[[1]][[1]]$Treat))))[2])
   # print(rep(c(levels(result.list$result$nof1$Treat)[2],
               # levels(result.list$result$nof1$Treat)[1]), length(result.list)))
 
   data <- data.frame(probability = probability, result.name = result.name,
-    Treat = rep(c(levels(result.list$result$nof1$Treat)[2],
-    levels(result.list$result$nof1$Treat)[1]), length(result.list)))
+    Treat = rep(c(levels(factor(result.list$result$nof1$Treat))[2],
+    levels(factor(result.list$result$nof1$Treat))[1]), length(result.list)))
+  # kinda confused on why he does Treat: B then A. at least thats what i think his intention is
+
+  # treatment_names <- result.list[[1]][[1]]$Treat.name
+  # data <- data.frame(probability = probability, result.name = result.name,
+  #   Treat = rep(treatment_names, length(result.list)))
+  str(data)
 
   ggplot(data, aes(fill = factor(Treat), y = probability, x = result.name)) + geom_bar(stat = "identity",
     position = "fill") + scale_y_continuous(labels = percent_format()) + labs(x = "Variables",
-    y = "Percentages", fill = "Treatment") + coord_flip() + theme_bw()
+    y = "Percentages", fill = "Treatment") + coord_flip() + theme_bw() + scale_fill_manual(values = c("dark blue", "light blue"))
 }
 
 #' Raw Graphs and Tables
