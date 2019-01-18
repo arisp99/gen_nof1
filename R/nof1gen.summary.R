@@ -215,7 +215,7 @@ odds_ratio_plot <- function(result.list, level = 0.95, title = "Odds Ratio Plot"
 }
 
 
-probability_barplot <- function(result.list, result.name = NULL) {
+probability_barplot <- function(result.list, title = "Probability Barplot") {
 
   probability <- rep(NA, length(result.list) * 2)
 
@@ -256,8 +256,9 @@ probability_barplot <- function(result.list, result.name = NULL) {
   str(data)
 
   ggplot(data, aes(fill = factor(Treat), y = probability, x = result.name)) + geom_bar(stat = "identity",
-    position = "fill") + scale_y_continuous(labels = percent_format()) + labs(x = "Variables",
-    y = "Percentages", fill = "Treatment") + coord_flip() + theme_bw() + scale_fill_manual(values = c("dark blue", "light blue"))
+    position = "fill") + scale_y_continuous(labels = percent_format()) +
+    labs(x = "Variables", y = "Percentages", fill = "Treatment", title = title) +
+    coord_flip() + theme_bw() + scale_fill_manual(values = c("dark blue", "light blue"))
 }
 
 #' Raw Graphs and Tables
@@ -330,7 +331,8 @@ result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = N
       odds_ratio_plot(model_result[[2]], level = level, title = title)
     }
     else if (graph == "probability_barplot"){
-      probability_barplot(model_result, result.name = result.name)
+      if (is.null(title)){title = "Probability Barplot"}
+      probability_barplot(model_result, title = title)
     } else {stop("Not a viable graph")}
   }
 }
