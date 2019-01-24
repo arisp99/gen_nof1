@@ -167,10 +167,16 @@ kernel_plot <- function(result, bins = 30, x_max = NULL, title = NULL) {
     x_max <- max(data$odds_ratio)
   }
 
+  response_type = result$nof1$response
+  if (response_type == "binomial") {xlab = "Odds Ratio"}
+  else if (response_type == "poisson") {xlab = "Relative Risk"}
+  else if (response_type == "normal") {xlab = "Mean Difference"}
+  else if (response_type == "ordinal") {xlab = "Odds Ratio"}
+
   ggplot(data, aes(x = odds_ratio, color = beta)) + geom_density(na.rm = TRUE, size = 2) +
     geom_histogram(aes(y = ..density..), bins = bins, col = "gray", alpha = 0.7, na.rm = TRUE) + theme_bw() +
     facet_wrap(. ~ beta, scales = "free") + xlim(0, x_max) +
-    labs(title = title, subtitle = "Kernel Density Estimation Plot", x = "Odds Ratio", y = "Density")
+    labs(title = title, subtitle = "Kernel Density Estimation Plot", x = xlab, y = "Density")
 }
 
 #' Odds ratio plot
@@ -345,7 +351,7 @@ result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = N
     }
     else if (graph == "probability_barplot"){
       if (is.null(title)){title = "Probability Barplot"}
-      probability_barplot(model_result, title = title)
+      probability_barplot(model_result[[2]], title = title)
     } else {stop("Not a viable graph")}
   }
 }
