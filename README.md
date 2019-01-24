@@ -102,5 +102,7 @@ result_graphs("kernel_plot", all_result_diet_small, outcome_name = "daily_stool_
 result_graphs("kernel_plot", result_diet_small, multiple = FALSE, title = "daily_stool_frequency")
 result_graphs("odds_ratio_plot", all_result_diet_small)
 result_graphs("odds_ratio_plot", all_result_afib)
+result_graphs("probability_barplot", all_result_diet_small)
+result_graphs("probability_barplot", all_result_afib)
 ```
 
