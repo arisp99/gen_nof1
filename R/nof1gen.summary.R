@@ -184,7 +184,7 @@ kernel_plot <- function(result, bins = 30, x_max = NULL, title = NULL) {
 odds_ratio_plot <- function(result.list, level = 0.95, title = "Odds Ratio Plot") {
 
   num_coef <- length(result.list[[1]][[1]]$Treat.name)
-  odds_ratio <- matrix(NA, nrow = num_coef*length(result.list), ncol = 3)
+  odds_ratio <- matrix(NA, nrow = num_coef * length(result.list), ncol = 3)
   # odds_ratio <- matrix(NA, nrow = length(result.list), ncol = 3)
   beta_names <- list()
 
@@ -192,7 +192,7 @@ odds_ratio_plot <- function(result.list, level = 0.95, title = "Odds Ratio Plot"
     result <- result.list[[i]][[2]]
     samples <- do.call(rbind, result$samples)
     df_samples <- as.data.frame(samples[, grep("beta", colnames(samples))])
-    if (length(num_coef) == 1) {colnames(df_samples) <- "beta_A"}
+    if (num_coef == 1) {colnames(df_samples) <- "beta_A"}
     beta_names <- names(df_samples)
     for (j in 1:num_coef) {
       odds_ratio[i + length(result.list) * (j-1), 1:3] <-
@@ -217,48 +217,61 @@ odds_ratio_plot <- function(result.list, level = 0.95, title = "Odds Ratio Plot"
 
 probability_barplot <- function(result.list, title = "Probability Barplot") {
 
-  probability <- rep(NA, length(result.list) * 2)
+  num_coef <- length(result.list[[1]][[1]]$Treat.name)
+  probability <- matrix(NA, nrow = length(result.list) * 2 * num_coef, ncol = 2)
+  beta_names <- list()
+  # print(probability)
+
+  treatment_names <- unique(result.list[[1]][[1]]$Treat)
+  # print(treatment_names)
 
   for (i in 1:length(result.list)) {
     result <- result.list[[i]][[2]]
-    # print(str(result$samples))
     samples <- do.call(rbind, result$samples)
-    # print(str(samples))
-    probability[(i - 1) * 2 + 1] <- mean(exp(samples[, grep("beta", colnames(samples))]) > 1)
-    # seems to take mean of values greater than 1. why????
-    probability[i * 2] <- 1 - probability[(i - 1) * 2 + 1]
+
+    df_samples <- as.data.frame(samples[, grep("beta", colnames(samples))])
+    # str(df_samples)
+    if (num_coef == 1) {colnames(df_samples) <- "beta_A"}
+    beta_names <- names(df_samples)
+    # print(beta_names)
+    for (j in 1:num_coef) {
+      probability[(i - 1) * 2 + 1 + num_coef * length(result.list) * (j-1), 1] <-
+        mean(exp(df_samples[[j]]) > 1)
+      probability[2 * i + num_coef * length(result.list) * (j-1), 1] <-
+        1 - as.numeric(probability[(i - 1) * 2 + 1 + num_coef * length(result.list) * (j-1), 1])
+      probability[(i - 1) * 2 + 1 + num_coef * length(result.list) * (j-1), 2] <- treatment_names[j + 1]
+      probability[2 * i + num_coef * length(result.list) * (j-1), 2] <- treatment_names[1]
+
+      # print(as.data.frame(probability))
+    }
   }
 
-  # if (is.null(result.name)) {
-  #   result.name <- rep(1:length(result.list), each = 2)
-  # } else {
-  #   if (length(result.name) != length(result.list)) {
-  #     stop("result.name should have same length as result.list")
-  #   }
-  #   result.name <- rep(result.name, each = 2)
+  probability <- as.data.frame(probability)
+  names(probability) <- c("probability", "Treat")
+  probability$probability <- as.numeric(levels(probability$probability))[probability$probability]
+  probability$outcomes <- rep(names(result.list), each = 2)
+  probability$beta <- (sort(rep(beta_names, num_coef * length(result.list))))
+  print(probability)
+
+
+  #   probability[(i - 1) * 2 + 1] <- mean(exp(samples[, grep("beta", colnames(samples))]) > 1)
+  #   str(samples[, grep("beta", colnames(samples))])
+  #   str(exp(samples[, grep("beta", colnames(samples))]))
+  #   probability[i * 2] <- 1 - probability[(i - 1) * 2 + 1]
   # }
-  result.name <- rep(names(result.list), each = 2)
-  # print(probability)
-  # print(result.name)
-  # print(levels(result.list[[1]][[1]]$Treat))
-  print(as.character(sort(unique(factor(result.list[[1]][[1]]$Treat))))[2])
-  # print(rep(c(levels(result.list$result$nof1$Treat)[2],
-              # levels(result.list$result$nof1$Treat)[1]), length(result.list)))
 
-  data <- data.frame(probability = probability, result.name = result.name,
-    Treat = rep(c(levels(factor(result.list$result$nof1$Treat))[2],
-    levels(factor(result.list$result$nof1$Treat))[1]), length(result.list)))
-  # kinda confused on why he does Treat: B then A. at least thats what i think his intention is
-
-  # treatment_names <- result.list[[1]][[1]]$Treat.name
+  # result.name <- rep(names(result.list), each = 2)
+  #
+  # treatment_names <- unique(result.list[[1]][[1]]$Treat)
+  # print(treatment_names)
   # data <- data.frame(probability = probability, result.name = result.name,
-  #   Treat = rep(treatment_names, length(result.list)))
-  str(data)
+  #   Treat = rep(rev(c("baseline", "A")), length(result.list)))
+  # print(data)
 
-  ggplot(data, aes(fill = factor(Treat), y = probability, x = result.name)) + geom_bar(stat = "identity",
-    position = "fill") + scale_y_continuous(labels = percent_format()) +
+  ggplot(probability, aes(fill = factor(Treat), y = probability, x = outcomes)) + geom_bar(stat = "identity",
+    position = "fill") + scale_y_continuous(labels = percent_format()) + facet_wrap(. ~ beta, scales = "free") +
     labs(x = "Variables", y = "Percentages", fill = "Treatment", title = title) +
-    coord_flip() + theme_bw() + scale_fill_manual(values = c("dark blue", "light blue"))
+    coord_flip() + theme_bw()
 }
 
 #' Raw Graphs and Tables
