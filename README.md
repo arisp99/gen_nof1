@@ -34,6 +34,10 @@ all_result_diet       <- wrap_all(diet_form, list("binomial", "poisson", "normal
 all_result_diet_small <- wrap_all(diet_form_small, list("binomial", "poisson", "normal", "normal"), FALSE)
 all_result_no_mscd    <- wrap_all(no_mscd_form, list("binomial", "poisson", "normal", "normal"), FALSE)
 all_result_no_scd     <- wrap_all(no_scd_form, list("binomial", "poisson", "normal", "normal"), FALSE)
+
+# We can also implement a washout period as such
+result_diet_small <- wrap_single(diet_form_small, "daily_stool_frequency", "poisson", set_to_null = "5")
+all_result_diet_small <- wrap_all(diet_form_small, list("binomial", "poisson", "normal", "normal"), set_to_null = list("5", "5", "2", "2"))
 ```
 
 # Summarizing the simulations
