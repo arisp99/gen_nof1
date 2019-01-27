@@ -66,46 +66,29 @@ formated_read_input <- function(data, response_type) {
 # Washout function. in some cases when we switch from A to B, for example, the
 # first couple data points in B could be corrupted because the effects of A are
 # still there. Thus we ingore the first couple data points (set them to NA).
-washout <- function(read_data, metadata) {
-
-  # calculating the duration of the study
-  finish <- as.Date(metadata$trial_end_date, format = "%Y-%m-%d")
-  start <- as.Date(metadata$trial_start_date, format = "%Y-%m-%d")
-  date_diff <- as.numeric(finish - start + 1)
-
-  # calculating the number of days and weeks
-  num_days <- date_diff
-  num_weeks <- date_diff/7
-
+washout <- function(read_data, num_outcomes, set_to_null = NULL) {
+  if (is.null(set_to_null)) {
+    return(read_data)
+  }
   # loop over the number of different observations we have
-  for (i in 1:length(read_data)) {
-    vec_treat <- unlist(read_data[[i]]$treatment)
-    change_point <- cumsum(rle(vec_treat)$lengths)
-    change_point <- change_point[-length(change_point)]
-    # change point now gives us the number of points for the treatments (minus the
+  for (i in 1:num_outcomes) {
+    # depending on how many observations we have we need to get data differently
+    if (num_outcomes > 1) {treat_vec <- unlist(read_data[[i]]$treatment)}
+    else {treat_vec <- unlist(read_data$treatment)}
+    treat_lengths <- cumsum(rle(treat_vec)$lengths)
+    treat_lengths <- treat_lengths[-length(treat_lengths)]
+    print(treat_lengths)
+    # treat_lengths now gives us the number of points for each treatments (minus the
     # last one)
 
-    # we only change weekly results and daily results, more than weekly does not make
-    # much sense as enough time would have passed so that the previous treatment
-    # would not make a difference anymore NB: at some point, may want to account for
-    # different frequencies, ie. multiple time a day
-    delete_obs_daily <- NULL
-    delete_obs_weekly <- NULL
-
-    if (length(vec_treat) == num_days) {
-      for (j in 1:length(change_point)) {
-        delete_obs_daily <- c(delete_obs_daily, (change_point[j] + 1):(change_point[j] +
-          7))
-      }
-      delete_obs_daily
-    } else if (length(vec_treat) == num_weeks) {
-      for (j in 1:length(change_point)) {
-        delete_obs_weekly <- c(delete_obs_weekly, (change_point[j] + 1))
-      }
-      delete_obs_weekly
+    delete_obs <- NULL
+    for (j in 1:length(treat_lengths)) {
+      delete_obs <- c(delete_obs, (treat_lengths[j] + 1):(treat_lengths[j] +
+        as.numeric(set_to_null[i])))
     }
-    read_data[[i]]$result[[1]][delete_obs_daily] <- NA
-    read_data[[i]]$result[[1]][delete_obs_weekly] <- NA
+
+    if (num_outcomes == 1){read_data$result[[1]][delete_obs] <- NA}
+    else {read_data[[i]]$result[[1]][delete_obs] <- NA}
   }
   read_data
 }
@@ -374,7 +357,7 @@ summarize_all_nof1 <- function(data_result_list, nof_treat, alpha = 0.025) {
 #' constructed using \code{nof1.data} and the result file which was created
 #' with \code{nof1.run}}
 #' @export
-wrap_all <- function(dataset, response_list, washout = TRUE) {
+wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL) {
   data = dataset$data
   metadata = dataset$metadata
 
@@ -384,12 +367,13 @@ wrap_all <- function(dataset, response_list, washout = TRUE) {
     if (!washout) {
       read_dummy
     } else {
-      read_dummy <- washout(read_dummy, metadata)
+      read_dummy <- washout(read_dummy, num_outcomes = length(data), set_to_null)
       read_dummy
     }
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
+  str(read_data)
 
   # initializing some values
   names <- names(data)
@@ -429,7 +413,7 @@ wrap_all <- function(dataset, response_list, washout = TRUE) {
 #'
 #' @param dataset The dataset the analysis will be conducted on.
 #' @param outcome_name The name of the outcome the analysis will be run on.
-#' @param result_type The type of model to run. Options are: normal,
+#' @param response_type The type of model to run. Options are: normal,
 #' binomial, poisson, or ordinal.
 #' @return The function returns some useful information about the simulation
 #' as well as information about the simulation.
@@ -444,7 +428,7 @@ wrap_all <- function(dataset, response_list, washout = TRUE) {
 #' with \code{nof1.run}}
 #'
 #' @export
-wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE) {
+wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE, set_to_null = NULL) {
   data = dataset$data[[as.name(outcome_name)]]
   metadata = dataset$metadata
 
@@ -454,12 +438,14 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE) {
     if (!washout) {
       read_dummy
     } else {
-      read_dummy <- washout(read_dummy, metadata)
+      read_dummy <- washout(read_dummy, num_outcomes = 1, set_to_null)
       read_dummy
     }
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
+
+  str(read_data)
 
   # initializing some values
   data_names <- names(data)
@@ -513,12 +499,3 @@ wrap_helper <- function(specific_data, response_type) {
   result_out <- nof1.run(nof1_out)
   return(list(nof1_out, result_out))
 }
-
-# Old Helper function for our wrap function. Creates the neccesary objects needed
-# to run the nof1 algorithim, runs the algorithim, and then summarizes the
-# result.  wrap_helper2 <- function(specific_data, response_type, nof_treat) {
-# data_out <- list(Treat = specific_data$treatment[[1]], Y =
-# specific_data$result[[1]]) nof1_out <- with(data_out, { nof1.data(Y, Treat,
-# response = response_type) }) result_out <- nof1.run(nof1_out)
-# print(str(nof1_out)) print(str(result_out)) summarize_nof1(nof1_out,
-# result_out, nof_treat) }
