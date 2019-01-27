@@ -80,7 +80,6 @@ washout <- function(read_data, num_outcomes, set_to_null = NULL) {
     else {treat_vec <- unlist(read_data$treatment)}
     treat_lengths <- cumsum(rle(treat_vec)$lengths)
     treat_lengths <- treat_lengths[-length(treat_lengths)]
-    print(treat_lengths)
     # treat_lengths now gives us the number of points for each treatments (minus the
     # last one)
 
