@@ -4,13 +4,17 @@
 \alias{washout}
 \title{Washout function}
 \usage{
-washout(read_data, metadata)
+washout(read_data, num_outcomes, set_to_null = NULL)
 }
 \arguments{
 \item{read_data}{The data we want to apply a washout out}
 
-\item{metadata}{The metadata section of a file. This is important as it contains
-information about the length of the trial.}
+\item{num_outcomes}{An integer, representative of the number of observations
+in the read_data input.}
+
+\item{set_to_null}{A string (or list of strings), which indicates how many
+observations will be set to NA if a washout period is implemented. The default
+is set to NULL.}
 }
 \value{
 The function returns the data with a washout period implemented.

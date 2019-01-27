@@ -4,13 +4,20 @@
 \alias{wrap_all}
 \title{Function to run the analysis on all outcomes}
 \usage{
-wrap_all(dataset, response_list, washout = TRUE)
+wrap_all(dataset, response_list, washout = TRUE, set_to_null = NULL)
 }
 \arguments{
 \item{dataset}{The dataset the analysis will be conducted on.}
 
-\item{result_list}{A list of all the models to run. Options are: normal,
+\item{response_list}{A list of all the models to run. Options are: normal,
 binomial, poisson, or ordinal.}
+
+\item{washout}{A boolean which indicates whether a washout period will
+be used or not. The default is set to TRUE.}
+
+\item{set_to_null}{A list of strings, which indicate how many observations will
+be set to NA if a washout period is implemented. The default is set
+to NULL.}
 }
 \value{
 The function returns some useful information about the simulation

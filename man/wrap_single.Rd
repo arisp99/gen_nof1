@@ -4,15 +4,23 @@
 \alias{wrap_single}
 \title{Function to run the analysis on a single outcome}
 \usage{
-wrap_single(dataset, outcome_name, response_type, washout = TRUE)
+wrap_single(dataset, outcome_name, response_type, washout = TRUE,
+  set_to_null = NULL)
 }
 \arguments{
 \item{dataset}{The dataset the analysis will be conducted on.}
 
 \item{outcome_name}{The name of the outcome the analysis will be run on.}
 
-\item{result_type}{The type of model to run. Options are: normal,
+\item{response_type}{The type of model to run. Options are: normal,
 binomial, poisson, or ordinal.}
+
+\item{washout}{A boolean, which indicates whether a washout period will
+be used or not. The default is set to TRUE.}
+
+\item{set_to_null}{A string, which indicates how many observations will
+be set to NA if a washout period is implemented. The default is set
+to NULL.}
 }
 \value{
 The function returns some useful information about the simulation

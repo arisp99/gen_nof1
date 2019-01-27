@@ -60,8 +60,11 @@ formated_read_input <- function(data, response_type) {
 #' the data was collected.
 #'
 #' @param read_data The data we want to apply a washout out
-#' @param metadata The metadata section of a file. This is important as it contains
-#' information about the length of the trial.
+#' @param num_outcomes An integer, representative of the number of observations
+#' in the read_data input.
+#' @param set_to_null A string (or list of strings), which indicates how many
+#' observations will be set to NA if a washout period is implemented. The default
+#' is set to NULL.
 #' @return The function returns the data with a washout period implemented.
 # Washout function. in some cases when we switch from A to B, for example, the
 # first couple data points in B could be corrupted because the effects of A are
@@ -343,8 +346,13 @@ summarize_all_nof1 <- function(data_result_list, nof_treat, alpha = 0.025) {
 #' \code{wrap_all} allows the user to run an anaylsis on a specific data set.
 #'
 #' @param dataset The dataset the analysis will be conducted on.
-#' @param result_list A list of all the models to run. Options are: normal,
+#' @param response_list A list of all the models to run. Options are: normal,
 #' binomial, poisson, or ordinal.
+#' @param washout A boolean which indicates whether a washout period will
+#' be used or not. The default is set to TRUE.
+#' @param set_to_null A list of strings, which indicate how many observations will
+#' be set to NA if a washout period is implemented. The default is set
+#' to NULL.
 #' @return The function returns some useful information about the simulation
 #'  as well as information about the simulation.
 #' \item{system_info}{Provides information about the clincical trial conducted}
@@ -373,7 +381,6 @@ wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL)
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
-  str(read_data)
 
   # initializing some values
   names <- names(data)
@@ -415,6 +422,11 @@ wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL)
 #' @param outcome_name The name of the outcome the analysis will be run on.
 #' @param response_type The type of model to run. Options are: normal,
 #' binomial, poisson, or ordinal.
+#' @param washout A boolean, which indicates whether a washout period will
+#' be used or not. The default is set to TRUE.
+#' @param set_to_null A string, which indicates how many observations will
+#' be set to NA if a washout period is implemented. The default is set
+#' to NULL.
 #' @return The function returns some useful information about the simulation
 #' as well as information about the simulation.
 #' \item{system_info}{Provides information about the clincical trial conducted}
@@ -444,8 +456,6 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE, se
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
-
-  str(read_data)
 
   # initializing some values
   data_names <- names(data)
