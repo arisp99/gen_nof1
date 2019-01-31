@@ -4,13 +4,16 @@
 \alias{kernel_plot}
 \title{Kernel density estimation plot}
 \usage{
-kernel_plot(result, bins = 30, x_max = NULL, title = NULL)
+kernel_plot(result, bins = 30, x_min = NULL, x_max = NULL,
+  title = NULL)
 }
 \arguments{
 \item{result}{An object with information about the simulation. The object is
 derived from the output of nof1.run}
 
 \item{bins}{The number of bins the histogram will contain. Default is 30.}
+
+\item{x_min}{The lower limit of the x-axis. Default is to set to zero}
 
 \item{x_max}{The upper limit of the x-axis. Default is to set the upper limit
 to the maximum value of the data inputed}

@@ -154,18 +154,18 @@ raw_table <- function(nof1) {
 #' @param result An object with information about the simulation. The object is
 #' derived from the output of nof1.run
 #' @param bins The number of bins the histogram will contain. Default is 30.
+#' @param x_min The lower limit of the x-axis. Default is to set to zero
 #' @param x_max The upper limit of the x-axis. Default is to set the upper limit
 #' to the maximum value of the data inputed
 #' @param title The title of the graph
-kernel_plot <- function(result, bins = 30, x_max = NULL, title = NULL) {
+kernel_plot <- function(result, bins = 30, x_min = NULL, x_max = NULL, title = NULL) {
   samples <- do.call(rbind, result$samples)
   beta_variable <- exp(samples[, grep("beta", colnames(samples))])
   data <- as.data.frame(beta_variable)
   data <- melt(data, id.vars = NULL, variable.name = "beta", value.name = "odds_ratio")
 
-  if (is.null(x_max)){
-    x_max <- max(data$odds_ratio)
-  }
+  if (is.null(x_min)){x_min <- 0}
+  if (is.null(x_max)){x_max <- max(data$odds_ratio)}
 
   response_type = result$nof1$response
   if (response_type == "binomial") {xlab = "Odds Ratio"}
@@ -329,8 +329,8 @@ raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NUL
 }
 
 result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = NULL,
-                          result.name = NULL, title = NULL, bins = 30, x_max = NULL,
-                          level = 0.95) {
+                          result.name = NULL, title = NULL, bins = 30, x_min = NULL,
+                          x_max = NULL, level = 0.95) {
   if (!multiple && graph == "kernel_plot"){
     kernel_plot(model_result[[2]][[2]], bins = bins, x_max = x_max, title = outcome_name)
   }
@@ -343,7 +343,7 @@ result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = N
     }
     else if (graph == "kernel_plot"){
       kern_out <- model_result[[2]][[as.name(outcome_name)]][[2]]
-      kernel_plot(kern_out, bins = bins, x_max = x_max, title = outcome_name)
+      kernel_plot(kern_out, bins = bins, x_min = x_min, x_max = x_max, title = outcome_name)
     }
     else if (graph == "odds_ratio_plot"){
       if (is.null(title)){title = "Odds Ratio Plot"}
