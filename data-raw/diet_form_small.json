@@ -2,19 +2,19 @@
   "data": [
     {
       "daily_stool_consistency": {
-	"treatment": ["baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"],
+	"treatment": ["baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict"],
 	"result": [7, 7, 7, 7, 7, 7, 7, 7, 1, 1, 1, 1, 1, 7, 7, 1, 1, 1, 1, 1, 7, 7, 1, 1, 1, 1, 1, 7, 7, 7, 7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
       },
       "daily_stool_frequency": {
-	"treatment": ["baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"],
+	"treatment": ["baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "liberalized", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict", "strict"],
 	"result": [2, 4, 2, 2, 1, 5, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, null, 4, 3, 2, 3, 2, 3, 2, 3, 2, 2, 2, 2, 3, 3, 2, 2, 3]
       },
       "promis_pain_interference": {
-	"treatment": ["baseline", "A", "A", "A", "A", "B", "B", "B"],
+	"treatment": ["baseline", "liberalized", "liberalized", "liberalized", "liberalized", "strict", "strict", "strict"],
 	"result": [49.9243, 49.8034, 49.803, 47.80, null, 49.8121, 49.8121, null]
       },
       "promis_gi_symptoms": {
-	"treatment": ["baseline", "A", "A", "A", "A", "B", "B", "B"],
+	"treatment": ["baseline", "liberalized", "liberalized", "liberalized", "liberalized", "strict", "strict", "strict"],
 	"result": [47.6431, 49.803, 49.803, 49.803, null, 47.8234, 47.8234, null]
       }
     }

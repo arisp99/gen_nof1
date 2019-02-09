@@ -2,7 +2,7 @@
   "data": [
     {
       "afib_episode_yn": {
-	"treatment": ["baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "baseline", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A"],
+	"treatment": ["control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "control", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger", "trigger"],
 	"result": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       }
     }
