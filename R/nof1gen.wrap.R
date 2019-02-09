@@ -403,7 +403,6 @@ wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL)
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
-  print(read_data)
 
   # initializing some values
   names <- names(data)
@@ -486,7 +485,6 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE, se
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
-  print(read_data)
 
   # initializing some values
   data_names <- names(data)
