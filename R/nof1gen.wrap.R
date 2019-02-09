@@ -35,7 +35,8 @@ formated_read_input <- function(data, response_type) {
       }
     }
     output
-  } else {
+  }
+  else if (!is.list(response_type)) {
     output <- data
     # chaning binomials to 0, 1
     if (response_type == "binomial") {
@@ -48,7 +49,20 @@ formated_read_input <- function(data, response_type) {
         output$result = list(fixed)
       }
     }
-  }
+  } else {
+      output <- data
+      # chaning binomials to 0, 1
+      if (response_type == "binomial") {
+        fixed <- unlist(data[[1]]$result)
+        if (all(fixed %in% c(0, 1, NA))) {
+          output[[1]]$result = list(fixed)
+        } else {
+          max <- max(fixed, na.rm = TRUE)
+          fixed <- ifelse(max > fixed & (!is.nan(fixed)), 0, 1)
+          output[[1]]$result = list(fixed)
+        }
+      }
+    }
   return(output)
 }
 
@@ -92,7 +106,7 @@ washout <- function(read_data, num_outcomes, set_to_null = NULL) {
     if (num_outcomes == 1){read_data$result[[1]][delete_obs] <- NA}
     else {read_data[[i]]$result[[1]][delete_obs] <- NA}
   }
-  read_data
+  return(read_data)
 }
 
 # Finds the raw mean of the input vector. Returns raw mean for baseline and all
@@ -368,6 +382,15 @@ wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL)
   data = dataset$data
   metadata = dataset$metadata
 
+  for (i in 1:length(data)){
+    #convert our treatment vector into list of "baseline", "A", "B", etc.
+    treatment_options = unique(unlist(data[[i]]$treatment))
+    data[[i]]$treatment[[1]][data[[i]]$treatment[[1]] == treatment_options[1]] = "baseline"
+    for (j in 2:length(treatment_options)) {
+      data[[i]]$treatment[[1]][data[[i]]$treatment[[1]] == treatment_options[j]] = LETTERS[j-1]
+    }
+  }
+
   # getting our data read and formated
   read_data <- tryCatch({
     read_dummy <- formated_read_input(data, response_list)
@@ -380,6 +403,7 @@ wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL)
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
+  print(read_data)
 
   # initializing some values
   names <- names(data)
@@ -443,6 +467,13 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE, se
   data = dataset$data[[as.name(outcome_name)]]
   metadata = dataset$metadata
 
+  #convert our treatment vector into list of "baseline", "A", "B", etc.
+  treatment_options = unique(unlist(data$treatment))
+  data$treatment[[1]][data$treatment[[1]] == treatment_options[1]] = "baseline"
+  for (i in 2:length(treatment_options)) {
+    data$treatment[[1]][data$treatment[[1]] == treatment_options[i]] = LETTERS[i-1]
+  }
+
   # getting our data read and formated
   read_data <- tryCatch({
     read_dummy <- formated_read_input(data, response_type)
@@ -455,6 +486,7 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE, se
   }, error = function(error) {
     return(paste("input read error: ", error))
   })
+  print(read_data)
 
   # initializing some values
   data_names <- names(data)
