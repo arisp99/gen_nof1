@@ -184,7 +184,7 @@ inv_logit <- function(a) {
 #'
 #' @param model_results A list which contains data file created
 #' by \code{nof1.data} and the result file created by \code{nof1.run}
-#' @param nof_treat The number of different treatments.
+#' @param treatment_names The names of the different treatments in the trial.
 #' @param alpha The alpha value for the confidence interval. If no value is
 #' entered will give the 95\% confidence interval.
 #' @return The function returns some useful information about the simulation.
@@ -203,25 +203,15 @@ inv_logit <- function(a) {
 #' \item{coef_confidence}{The confidence interval of the input data set
 #' of the output value for each coefficient}
 #' @export
-
-# Function to present a summary of our results. When we take our draws we have
-# coefficients: alpha, beta_A, beta_B, etc.  Baseline=alpha,
-# treatmentA=alpha+beta_A, treatmentB=alpha+beta_B, etc. Function returns: input
-# mean and median, mean and median for the treatments, mean and median for the
-# coefs, P(treatment>0), P(coef>0), CI(alpha=0.5) for treatment and coef.
-summarize_nof1 <- function(model_results, nof_treat, alpha = 0.025) {
+summarize_nof1 <- function(model_results, treatment_names, alpha = 0.025) {
+  nof_treat <- length(treatment_names)
   nof1 <- model_results[[1]]
   result <- model_results[[2]]
 
   with(c(nof1, result), {
 
     samples <- do.call(rbind, samples)
-
-    # creating our list of treatment names. base, treat_A, treat_B, etc.
-    treat_n = list("base")
-    for (i in 1:(nof_treat - 1)) {
-      treat_n <- c(treat_n, paste("treat", LETTERS[i], sep = "_"))
-    }
+    treat_n <- treatment_names
 
     # creating our list of coef names
     coef_n = list("alpha")
@@ -323,7 +313,7 @@ summarize_nof1 <- function(model_results, nof_treat, alpha = 0.025) {
 #'
 #' @param data_result_list A list of data files and result files. This is the
 #' output of \code{wrap_all}
-#' @param nof_treat The number of different treatments.
+#' @param treatment_names The names of the different treatments in the trial.
 #' @param alpha The alpha value for the confidence interval. If no value is
 #' entered will give the 95\% confidence interval.
 #' @return The function returns some useful information about the simulation. It
@@ -343,13 +333,13 @@ summarize_nof1 <- function(model_results, nof_treat, alpha = 0.025) {
 #' \item{coef_confidence}{The confidence interval of the input data set
 #' of the output value for each coefficient}
 #' @export
-summarize_all_nof1 <- function(data_result_list, nof_treat, alpha = 0.025) {
-  summary_list <- vector("list", length = length(data_result_list[[2]]))
-  for (i in 1:length(data_result_list[[2]])) {
-    summary_list[[i]] <- summarize_nof1(data_result_list[[2]][[i]], nof_treat,
-      alpha)
+summarize_all_nof1 <- function(data_result_list, treatment_names, alpha = 0.025) {
+  summary_list <- vector("list", length = length(data_result_list$model_results))
+  for (i in 1:length(data_result_list$model_results)) {
+    summary_list[[i]] <- summarize_nof1(data_result_list$model_results[[i]], treatment_names,
+                                        alpha)
   }
-  names(summary_list) <- names(data_result_list[[2]])
+  names(summary_list) <- names(data_result_list$model_results)
 
   return(summary_list)
 }
@@ -367,13 +357,13 @@ summarize_all_nof1 <- function(data_result_list, nof_treat, alpha = 0.025) {
 #' be set to NA if a washout period is implemented. The default is set
 #' to NULL.
 #' @return The function returns some useful information about the simulation
-#'  as well as information about the simulation.
+#'  as well as information about the simulation itself.
 #' \item{system_info}{Provides information about the clincical trial conducted}
 #' \item{user_id}{The user id for the particular patient whose data was analyzed}
-#' \item{trigger}{The trigger the study was examining}
+#' \item{treatments}{The names of the treatments in the trial}
+#' \item{nof_treat}{The number of different treatments that were admininstered}
 #' \item{design}{How the study was designed. How many weeks of treatment A? Of
 #'  treatment B?}
-#' \item{nof_treat}{The number of different treatments that were admininstered}
 #' \item{model_results}{This is a list which contains the data file that was
 #' constructed using \code{nof1.data} and the result file which was created
 #' with \code{nof1.run}}
@@ -417,17 +407,8 @@ wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL)
   }
   names(returns) <- as.list(names)
 
-  # checking that the number of treatments is correct for each observation
-  # correct_treat <- list() for (i in 1:nof_responses) { correct_treat <-
-  # c(correct_treat, check_nof_treatments(read_data[, i]$treatment, read_data[,
-  # i]$result, nof_treat)) } names(correct_treat) <- as.list(names)
-
-  # listing some info about algorithm run system_info <- list(enough_data =
-  # correct_treat[[1]], user_id = metadata$user_id, trigger = metadata$trigger,
-  # design = metadata$design, timestap_completion = Sys.time())
-
-  system_info <- list(user_id = metadata$user_id, trigger = metadata$trigger, design = metadata$design,
-    nof_treat = nof_treat, timestap_completion = Sys.time())
+  system_info <- list(user_id = metadata$user_id, treatments = treatment_options, nof_treat = nof_treat,
+                      design = metadata$design, timestap_completion = Sys.time())
 
   final <- list(system_info = system_info, model_results = returns)
 
@@ -450,13 +431,13 @@ wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL)
 #' be set to NA if a washout period is implemented. The default is set
 #' to NULL.
 #' @return The function returns some useful information about the simulation
-#' as well as information about the simulation.
+#'  as well as information about the simulation itself.
 #' \item{system_info}{Provides information about the clincical trial conducted}
 #' \item{user_id}{The user id for the particular patient whose data was analyzed}
-#' \item{trigger}{The trigger the study was examining}
+#' \item{treatments}{The names of the treatments in the trial}
+#' \item{nof_treat}{The number of different treatments that were admininstered}
 #' \item{design}{How the study was designed. How many weeks of treatment A? Of
 #'  treatment B?}
-#' \item{nof_treat}{The number of different treatments that were admininstered}
 #' \item{model_results}{This is a list which contains the data file that was
 #' constructed using \code{nof1.data} and the result file which was created
 #' with \code{nof1.run}}
@@ -501,16 +482,7 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE, se
   # running our algorithm
   result <- wrap_helper(read_data, response_type)
 
-  # checking that the number of treatments is correct for each observation
-  # correct_treat <-
-  # check_nof_treatments(read_data[[as.name(outcome_name)]]$treatment,
-  # read_data[[as.name(outcome_name)]]$result, nof_treat)
-
-  # listing some info about algorithm run system_info <- list(enough_data =
-  # correct_treat[[1]], user_id = metadata$user_id, trigger = metadata$trigger,
-  # design = metadata$design, timestap_completion = Sys.time())
-
-  system_info <- list(user_id = metadata$user_id, trigger = metadata$trigger, design = metadata$design,
+  system_info <- list(user_id = metadata$user_id, treatments = treatment_options, design = metadata$design,
     nof_treat = nof_treat, timestap_completion = Sys.time())
 
   # in final output, print system_info, the data file, and result file
