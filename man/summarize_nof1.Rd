@@ -4,13 +4,13 @@
 \alias{summarize_nof1}
 \title{Function to present a summary of our results}
 \usage{
-summarize_nof1(model_results, nof_treat, alpha = 0.025)
+summarize_nof1(model_results, treatment_names, alpha = 0.025)
 }
 \arguments{
 \item{model_results}{A list which contains data file created
 by \code{nof1.data} and the result file created by \code{nof1.run}}
 
-\item{nof_treat}{The number of different treatments.}
+\item{treatment_names}{The names of the different treatments in the trial.}
 
 \item{alpha}{The alpha value for the confidence interval. If no value is
 entered will give the 95\% confidence interval.}
