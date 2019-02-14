@@ -92,7 +92,7 @@ all_output_no_scd <-
 
 # Creating graphs and tables to visualze data
 
-Graphs can also be used to analyze the data. There are several graphs that can be created both for the raw data and for the result data, which is created by our simulataions. At the time of this update, it is only possible to create the raw data graphs and tables. There are four graphs that can be constructed. Below is an example for each one:
+Graphs can also be used to analyze the data. There are several graphs that can be created both for the raw data and for the result data, which is created by our simulataions. Below is an example for each graph:
 
 ```{r}
 # Use the function raw_graphs to create the graphs
