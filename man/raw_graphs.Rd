@@ -4,7 +4,7 @@
 \alias{raw_graphs}
 \title{Raw Graphs and Tables}
 \usage{
-raw_graphs(graph, model_result, multiple = FALSE, outcome_name = NULL,
+raw_graphs(graph, result, multiple = FALSE, outcome_name = NULL,
   date_start = NULL, date_end = NULL, date.format = "\%m-\%d-\%Y",
   title = NULL, bins = 10)
 }
@@ -12,15 +12,15 @@ raw_graphs(graph, model_result, multiple = FALSE, outcome_name = NULL,
 \item{graph}{A string which specifies the specific table or graph to construct.
 Options include: time_series_plot, frequency_plot, stacked_percent_barplot, and raw_table.}
 
-\item{model_result}{The analysis we want to make the graphs for. It is
-the output of \code{wrap_single}}
-
 \item{multiple}{A boolean that indicates if the \code{model_result} input has multiple
 possible outcome. In other words, was \code{model_result} input created \code{\link{from wrap_all}}
 or \code{\link{wrap_single}}? The default is FALSE meaning we only have one outcome in the
 \code{model_result} input.}
 
 \item{outcome_name}{A string that indicates the name of the outcome we wish to graph}
+
+\item{model_result}{The analysis we want to make the graphs for. It is
+the output of \code{wrap_single}}
 
 \item{...}{Specific paramaters depending on table or graph to constuct}
 }

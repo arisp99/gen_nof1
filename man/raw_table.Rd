@@ -19,13 +19,10 @@ response type the following are given:
 \item{2.5\%}{2.5\% of the data are equal to or less than this value}
 \item{50\%}{50\% of the data are equal to or less than this value}
 \item{97.5\%}{97.5\% of the data are equal to or less than this value}
-For a binomial or ordinal response type, the following are given:
-\item{A}{Number of data points taken while in Treatment A phase
-that have a value of 0 and 1, in the first and second row, respectivly}
-\item{B}{Number of data points taken while in Treatment B phase
-that have a value of 0 and 1, in the first and second row, respectivly}
-\item{baseline}{Number of data points taken while in baseline phase
-that have a value of 0 and 1, in the first and second row, respectivly}
+
+For a binomial or ordinal response type, returns a table where first row
+is each treatment and the following rows are the the number of data points
+taken at each possible value.
 }
 \description{
 Provides a summary data table for the particular outcome in a particular dataset.

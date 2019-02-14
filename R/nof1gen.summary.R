@@ -20,9 +20,9 @@ time_series_plot <- function(nof1, date_start = NULL, date_end = NULL, date.form
   if (nof1$response %in% c("normal", "poisson")){
     period <- seq(date_start, date_end, length.out = length(nof1$Y))
     date <- as.Date(period, date.format)
-    data <- data.frame(Y = nof1$Y, date = date, Treatment = factor(nof1$Treat, levels = c("baseline", "A", "B")))
+    data <- data.frame(Y = nof1$Y, date = date, Treatment = factor(nof1$Treat))
     ggplot(data, aes(x = date, Y, color = Treatment)) + geom_point(na.rm = TRUE) +
-      facet_wrap(.~ Treatment) + theme_bw() + scale_color_manual(values = c("#619CFF", "#F8766D", "#00BA38")) +
+      facet_wrap(.~ Treatment) + theme_bw() +
       labs(x = "Date", y = "Outcomes", title = title, subtitle = "Time Series Plot")
       # geom_smooth(method ="lm", na.rm = TRUE)
   }
@@ -127,25 +127,81 @@ stacked_percent_barplot <- function(nof1, title = NULL) {
 #' \item{2.5\%}{2.5\% of the data are equal to or less than this value}
 #' \item{50\%}{50\% of the data are equal to or less than this value}
 #' \item{97.5\%}{97.5\% of the data are equal to or less than this value}
-#' For a binomial or ordinal response type, the following are given:
-#' \item{A}{Number of data points taken while in Treatment A phase
-#' that have a value of 0 and 1, in the first and second row, respectivly}
-#' \item{B}{Number of data points taken while in Treatment B phase
-#' that have a value of 0 and 1, in the first and second row, respectivly}
-#' \item{baseline}{Number of data points taken while in baseline phase
-#' that have a value of 0 and 1, in the first and second row, respectivly}
+#'
+#' For a binomial or ordinal response type, returns a table where first row
+#' is each treatment and the following rows are the the number of data points
+#' taken at each possible value.
 raw_table <- function(nof1) {
 
   if (nof1$response %in% c("binomial", "ordinal")) {
-    table(nof1$Y, nof1$Treat, useNA = "ifany")
+    raw_table <- table(nof1$Y, nof1$Treat, useNA = "ifany")
   } else if (nof1$response %in% c("normal", "poisson")) {
     raw_table <- aggregate(nof1$Y, list(Treat = nof1$Treat), mean, na.rm = TRUE)
     colnames(raw_table)[2] <- "mean"
-    cbind(raw_table, sd = aggregate(nof1$Y, list(Treat = nof1$Treat), sd, na.rm = TRUE)[,
+    raw_table <- cbind(raw_table, sd = aggregate(nof1$Y, list(Treat = nof1$Treat), sd, na.rm = TRUE)[,
       -1], aggregate(nof1$Y, list(Treat = nof1$Treat), quantile, na.rm = TRUE,
       c(0.025, 0.5, 0.975))[, -1])
   }
+  return(raw_table)
 }
+
+#' Raw Graphs and Tables
+#'
+#' \code{raw_graphs} allows the user to create a specific table or graph
+#' for an outcome. Possible graphs include: time_series_plot, frequency_plot,
+#' stacked_percent_barplot, and raw_table.
+#'
+#' @param graph A string which specifies the specific table or graph to construct.
+#'  Options include: time_series_plot, frequency_plot, stacked_percent_barplot, and raw_table.
+#' @param model_result The analysis we want to make the graphs for. It is
+#' the output of \code{wrap_single}
+#' @param multiple A boolean that indicates if the \code{model_result} input has multiple
+#'  possible outcome. In other words, was \code{model_result} input created \code{\link{from wrap_all}}
+#'  or \code{\link{wrap_single}}? The default is FALSE meaning we only have one outcome in the
+#'  \code{model_result} input.
+#' @param outcome_name A string that indicates the name of the outcome we wish to graph
+#' @param ... Specific paramaters depending on table or graph to constuct
+#' @examples
+#' raw_graphs("raw_table", all_result_afib, TRUE, "afib_episode_yn")
+#' raw_graphs("frequency_plot", result_afib)
+#' @export
+raw_graphs <- function(graph, result, multiple = FALSE, outcome_name = NULL,
+                       date_start = NULL, date_end = NULL, date.format = "%m-%d-%Y",
+                       title = NULL, bins = 10) {
+
+  treatment_names <- result$system_info$treatments
+  # getting correct model data
+  if (!multiple) {
+    nof1_out <- result$model_results[[1]]
+  }
+  else {
+    if (is.null(outcome_name)) {
+      stop("Need to specify outcome name when have result input with multiple possible outcome")
+    }
+    else {
+      nof1_out <- result$model_results[[as.name(outcome_name)]][[1]]
+      title = outcome_name
+    }
+  }
+
+  # changing the values of the Treat vector
+  curr_treats <- unique(nof1_out$Treat)
+  for (i in 1:length(curr_treats)){
+    nof1_out$Treat[nof1_out$Treat == curr_treats[i]] = treatment_names[i]
+  }
+
+  if (graph == "time_series_plot") {
+    time_series_plot(nof1_out, date_start = date_start, date_end = date_end, date.format = date.format, title = title)
+  } else if (graph == "frequency_plot") {
+    frequency_plot(nof1_out, title, bins)
+  } else if (graph == "stacked_percent_barplot") {
+    stacked_percent_barplot(nof1_out, title)
+  } else if (graph == "raw_table") {
+    raw_table(nof1_out)
+  } else {stop("Not a viable graph or table")}
+}
+
+#######################
 
 #' Kernel density estimation plot
 #'
@@ -275,57 +331,9 @@ probability_barplot <- function(result.list, title = "Probability Barplot") {
   # print(data)
 
   ggplot(probability, aes(fill = factor(Treat), y = probability, x = outcomes)) + geom_bar(stat = "identity",
-    position = "fill") + scale_y_continuous(labels = percent_format()) + facet_wrap(. ~ beta, scales = "free") +
+                                                                                           position = "fill") + scale_y_continuous(labels = percent_format()) + facet_wrap(. ~ beta, scales = "free") +
     labs(x = "Variables", y = "Percentages", fill = "Treatment", title = title) +
     coord_flip() + theme_bw()
-}
-
-#' Raw Graphs and Tables
-#'
-#' \code{raw_graphs} allows the user to create a specific table or graph
-#' for an outcome. Possible graphs include: time_series_plot, frequency_plot,
-#' stacked_percent_barplot, and raw_table.
-#'
-#' @param graph A string which specifies the specific table or graph to construct.
-#'  Options include: time_series_plot, frequency_plot, stacked_percent_barplot, and raw_table.
-#' @param model_result The analysis we want to make the graphs for. It is
-#' the output of \code{wrap_single}
-#' @param multiple A boolean that indicates if the \code{model_result} input has multiple
-#'  possible outcome. In other words, was \code{model_result} input created \code{\link{from wrap_all}}
-#'  or \code{\link{wrap_single}}? The default is FALSE meaning we only have one outcome in the
-#'  \code{model_result} input.
-#' @param outcome_name A string that indicates the name of the outcome we wish to graph
-#' @param ... Specific paramaters depending on table or graph to constuct
-#' @examples
-#' raw_graphs("raw_table", all_result_afib, TRUE, "afib_episode_yn")
-#' raw_graphs("frequency_plot", result_afib)
-#' @export
-raw_graphs <- function(graph, model_result, multiple = FALSE, outcome_name = NULL,
-                       date_start = NULL, date_end = NULL, date.format = "%m-%d-%Y",
-                       title = NULL, bins = 10) {
-
-  if (!multiple) {
-    nof1_out <- model_result[[2]][[1]]
-  }
-  else {
-    if (is.null(outcome_name)) {
-      stop("Need to specify outcome name when have model_result input with multiple possible outcome")
-    }
-    else {
-      nof1_out <- model_result[[2]][[as.name(outcome_name)]][[1]]
-      title = outcome_name
-    }
-  }
-
-  if (graph == "time_series_plot") {
-    time_series_plot(nof1_out, date_start = date_start, date_end = date_end, date.format = date.format, title = title)
-  } else if (graph == "frequency_plot") {
-    frequency_plot(nof1_out, title, bins)
-  } else if (graph == "stacked_percent_barplot") {
-    stacked_percent_barplot(nof1_out, title)
-  } else if (graph == "raw_table") {
-    raw_table(nof1_out)
-  } else {stop("Not a viable graph or table")}
 }
 
 result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = NULL,
