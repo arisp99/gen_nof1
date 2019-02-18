@@ -30,6 +30,8 @@ NULL
 #' @import coda
 #' @import ggplot2
 #' @import jsonlite
+#' @importFrom jsonlite toJSON
+#' @importFrom jsonlite fromJSON
 #' @import MASS
 #' @import rjags
 #' @import scales
