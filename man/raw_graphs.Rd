@@ -24,6 +24,10 @@ the output of \code{wrap_single}}
 
 \item{...}{Specific paramaters depending on table or graph to constuct}
 }
+\value{
+Returns one of the following graphs: time series plot, frequency plot,
+stacked percent barplot, or raw table for the inputed data.
+}
 \description{
 \code{raw_graphs} allows the user to create a specific table or graph
 for an outcome. Possible graphs include: time_series_plot, frequency_plot,

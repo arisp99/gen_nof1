@@ -22,7 +22,9 @@ or \code{\link{wrap_single}}? The default is FALSE meaning we only have one outc
 
 \item{outcome_name}{A string that indicates the name of the outcome we wish to graph}
 
-\item{...}{Specific paramaters depending on table or graph to constuct}
+\item{...}{Specific paramaters depending on table or graph to constuct
+#' @return Returns one of the following graphs: kernel density plot, odds ratio plot,
+and probability barplot for the model data.}
 }
 \description{
 \code{result_graphs} allows the user to create a specific table or graph

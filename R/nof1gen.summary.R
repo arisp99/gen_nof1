@@ -161,6 +161,8 @@ raw_table <- function(nof1) {
 #'  \code{model_result} input.
 #' @param outcome_name A string that indicates the name of the outcome we wish to graph
 #' @param ... Specific paramaters depending on table or graph to constuct
+#' @return Returns one of the following graphs: time series plot, frequency plot,
+#' stacked percent barplot, or raw table for the inputed data.
 #' @examples
 #' raw_graphs("raw_table", all_result_afib, TRUE, "afib_episode_yn")
 #' raw_graphs("frequency_plot", result_afib)
@@ -352,6 +354,8 @@ probability_barplot <- function(result.list, title = "Probability Barplot") {
 #'  \code{model_result} input.
 #' @param outcome_name A string that indicates the name of the outcome we wish to graph
 #' @param ... Specific paramaters depending on table or graph to constuct
+#' #' @return Returns one of the following graphs: kernel density plot, odds ratio plot,
+#' and probability barplot for the model data.
 #' @export
 result_graphs <- function(graph, model_result, multiple = TRUE, outcome_name = NULL,
                           result.name = NULL, title = NULL, bins = 30, x_min = NULL,
