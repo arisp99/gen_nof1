@@ -68,12 +68,12 @@ output_no_scd <-
   toJSON(output_no_scd, pretty = TRUE, UTC = TRUE, auto_unbox = TRUE, na = NULL)
 
 # Use the summarize_all_nof1 function to summarize the the cases where we ran a model for each outcome
-all_output_afib       <- summarize_all_nof1(all_result_afib, result_afib$system_info$treatments)
-all_output_afib_var   <- summarize_all_nof1(all_result_afib_var, result_afib_var$system_info$treatments)
-all_output_diet       <- summarize_all_nof1(all_result_diet, result_diet$system_info$treatments)
-all_output_diet_small <- summarize_all_nof1(all_result_diet_small, result_diet_small$system_info$treatments)
-all_output_no_mscd    <- summarize_all_nof1(all_result_no_mscd, result_no_mscd$system_info$treatments)
-all_output_no_scd     <- summarize_all_nof1(all_result_no_scd, result_no_scd$system_info$treatments)
+all_output_afib       <- summarize_all_nof1(all_result_afib, all_result_afib$system_info$treatments)
+all_output_afib_var   <- summarize_all_nof1(all_result_afib_var, all_result_afib_var$system_info$treatments)
+all_output_diet       <- summarize_all_nof1(all_result_diet, all_result_diet$system_info$treatments)
+all_output_diet_small <- summarize_all_nof1(all_result_diet_small, all_result_diet_small$system_info$treatments)
+all_output_no_mscd    <- summarize_all_nof1(all_result_no_mscd, all_result_no_mscd$system_info$treatments)
+all_output_no_scd     <- summarize_all_nof1(all_result_no_scd, all_result_no_scd$system_info$treatments)
 
 # We can then output the above to a .json format
 all_output_afib <-
