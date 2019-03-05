@@ -511,5 +511,5 @@ wrap_helper <- function(specific_data, response_type) {
     nof1.data(Y, Treat, response = response_type)
   })
   result_out <- nof1.run(nof1_out)
-  return(list(nof1_out, result_out))
+  return(list(data_file = nof1_out, model_outcome = result_out))
 }
