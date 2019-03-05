@@ -25,12 +25,14 @@ to NULL.}
 \value{
 The function returns some useful information about the simulation
  as well as information about the simulation itself.
-\item{system_info}{Provides information about the clincical trial conducted}
-\item{user_id}{The user id for the particular patient whose data was analyzed}
-\item{treatments}{The names of the treatments in the trial}
-\item{nof_treat}{The number of different treatments that were admininstered}
-\item{design}{How the study was designed. How many weeks of treatment A? Of
- treatment B?}
+\item{system_info}{Provides information about the clincical trial conducted. Contains
+\describe{
+  \item{user_id}{The user id for the particular patient whose data was analyzed}
+  \item{treatments}{The names of the treatments in the trial}
+  \item{nof_treat}{The number of different treatments that were admininstered}
+  \item{design}{How the study was designed. How many weeks of treatment A? Of
+   treatment B?}
+ }}
 \item{model_results}{This is a list which contains the data file that was
 constructed using \code{nof1.data} and the result file which was created
 with \code{nof1.run}}
