@@ -367,7 +367,7 @@ summarize_all_nof1 <- function(data_result_list, treatment_names, alpha = 0.025)
 #'    treatment B?}
 #'   \item{date_start}{The start date of the study}
 #'   \item{date_end}{The end date of the study}
-#' }
+#' }}
 #' \item{model_results}{This is a list which contains the data file that was
 #' constructed using \code{nof1.data} and the result file which was created
 #' with \code{nof1.run}}
