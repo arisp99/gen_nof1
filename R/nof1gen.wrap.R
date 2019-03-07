@@ -358,12 +358,16 @@ summarize_all_nof1 <- function(data_result_list, treatment_names, alpha = 0.025)
 #' to NULL.
 #' @return The function returns some useful information about the simulation
 #'  as well as information about the simulation itself.
-#' \item{system_info}{Provides information about the clincical trial conducted}
-#' \item{user_id}{The user id for the particular patient whose data was analyzed}
-#' \item{treatments}{The names of the treatments in the trial}
-#' \item{nof_treat}{The number of different treatments that were admininstered}
-#' \item{design}{How the study was designed. How many weeks of treatment A? Of
-#'  treatment B?}
+#' \item{system_info}{Provides information about the clincical trial conducted
+#' \describe{
+#'   \item{user_id}{The user id for the particular patient whose data was analyzed}
+#'   \item{treatments}{The names of the treatments in the trial}
+#'   \item{nof_treat}{The number of different treatments that were admininstered}
+#'   \item{design}{How the study was designed. How many weeks of treatment A? Of
+#'    treatment B?}
+#'   \item{date_start}{The start date of the study}
+#'   \item{date_end}{The end date of the study}
+#' }
 #' \item{model_results}{This is a list which contains the data file that was
 #' constructed using \code{nof1.data} and the result file which was created
 #' with \code{nof1.run}}
@@ -407,8 +411,9 @@ wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL)
   }
   names(returns) <- as.list(names)
 
-  system_info <- list(user_id = metadata$user_id, treatments = treatment_options, nof_treat = nof_treat,
-                      design = metadata$design, timestap_completion = Sys.time())
+  system_info <- list(user_id = metadata$user_id, treatments = treatment_options, design = metadata$design,
+                      nof_treat = nof_treat, date_start = metadata$trial_start_date, date_end = metadata$trial_end_date,
+                      timestap_completion = Sys.time())
 
   final <- list(system_info = system_info, model_results = returns)
 
@@ -439,6 +444,8 @@ wrap_all <- function(dataset, response_list, washout = TRUE, set_to_null = NULL)
 #'   \item{nof_treat}{The number of different treatments that were admininstered}
 #'   \item{design}{How the study was designed. How many weeks of treatment A? Of
 #'    treatment B?}
+#'   \item{date_start}{The start date of the study}
+#'   \item{date_end}{The end date of the study}
 #'  }}
 #' \item{model_results}{This is a list which contains the data file that was
 #' constructed using \code{nof1.data} and the result file which was created
@@ -485,8 +492,9 @@ wrap_single <- function(dataset, outcome_name, response_type, washout = TRUE, se
   # running our algorithm
   result <- wrap_helper(read_data, response_type)
 
-  system_info <- list(user_id = metadata$user_id, treatments = treatment_options, design = metadata$design,
-    nof_treat = nof_treat, timestap_completion = Sys.time())
+  system_info <- list(user_id = metadata$user_id, treatments = treatment_options, nof_treat = nof_treat,
+                      design = metadata$design, date_start = metadata$trial_start_date, date_end = metadata$trial_end_date,
+                      timestap_completion = Sys.time())
 
   # in final output, print system_info, the data file, and result file
   final <- list(system_info = system_info, model_results = result)
