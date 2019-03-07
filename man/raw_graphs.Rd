@@ -5,7 +5,7 @@
 \title{Raw Graphs and Tables}
 \usage{
 raw_graphs(graph, result, multiple = FALSE, outcome_name = NULL,
-  date_start = NULL, date_end = NULL, date.format = "\%m-\%d-\%Y",
+  date_start = NULL, date_end = NULL, date.format = "\%Y-\%m-\%d",
   title = NULL, bins = 10)
 }
 \arguments{

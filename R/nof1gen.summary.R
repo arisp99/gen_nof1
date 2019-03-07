@@ -136,7 +136,7 @@ raw_table <- function(nof1) {
   if (nof1$response %in% c("binomial", "ordinal")) {
     raw_table <- table(nof1$Y, nof1$Treat, useNA = "ifany")
   } else if (nof1$response %in% c("normal", "poisson")) {
-    raw_table <- aggregate(nof1$Y, list(Treat = nof1$Treat), mean, na.rm = TRUE)
+    raw_table <- aggregate(nof1$Y, list(Treatment = nof1$Treat), mean, na.rm = TRUE)
     colnames(raw_table)[2] <- "mean"
     raw_table <- cbind(raw_table, sd = aggregate(nof1$Y, list(Treat = nof1$Treat), sd, na.rm = TRUE)[,
       -1], aggregate(nof1$Y, list(Treat = nof1$Treat), quantile, na.rm = TRUE,
@@ -168,7 +168,7 @@ raw_table <- function(nof1) {
 #' raw_graphs("frequency_plot", result_afib)
 #' @export
 raw_graphs <- function(graph, result, multiple = FALSE, outcome_name = NULL,
-                       date_start = NULL, date_end = NULL, date.format = "%m-%d-%Y",
+                       date_start = NULL, date_end = NULL, date.format = "%Y-%m-%d",
                        title = NULL, bins = 10) {
 
   treatment_names <- result$system_info$treatments
@@ -193,6 +193,10 @@ raw_graphs <- function(graph, result, multiple = FALSE, outcome_name = NULL,
   }
 
   if (graph == "time_series_plot") {
+    if (is.null(date_start) && is.null(date_end)){
+      date_start = as.Date(result$system_info$date_start)
+      date_end   = as.Date(result$system_info$date_end)
+    }
     time_series_plot(nof1_out, date_start = date_start, date_end = date_end, date.format = date.format, title = title)
   } else if (graph == "frequency_plot") {
     frequency_plot(nof1_out, title, bins)
